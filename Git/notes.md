@@ -1,25 +1,20 @@
 ## Commands
 
 `add`
-
-  `--patch`     staging files while revising every change
+- `--patch`     staging files while revising every change
 
 `push`
-
-  `-u origin <branch_name>`    new remote branch with this name will be created. -u - will set this branch as an upstream branch, so that all future pushes are done against this remote branch automatically
-  `origin --delete <remote-branch-name>`     delete remote branch
+- `-u origin <branch_name>`    new remote branch with this name will be created. -u - will set this branch as an upstream branch, so that all future pushes are done against this remote branch automatically
+- `origin --delete <remote-branch-name>`     delete remote branch
 
 `pull`
-
-  `--rebase`      read here: https://stackoverflow.com/a/48929413/1765558
+- `--rebase`      read here: https://stackoverflow.com/a/48929413/1765558
 
 `rm`
-
-  `--cached <file>`     untrack an uncommited file
+- `--cached <file>`     untrack an uncommited file
 
 `reset`
-
-  `HEAD <file>`     unstage a staged file
+- `HEAD <file>`     unstage a staged file
 
 `bisect`      find broken commit (see: https://www.metaltoad.com/blog/beginners-guide-git-bisect-process-elimination)
 
