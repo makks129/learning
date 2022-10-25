@@ -116,6 +116,9 @@ RUN groupadd --gid 1000 node && useradd --uid 1000 --gid node --shell /bin/bash 
 USER 1000:1000
 ```
 
+## NodeJS
+[Node.js + Docker for Showing Good Defaults in Using Node.js with Docker](https://github.com/BretFisher/node-docker-good-defaults)
+
 
 ## Swarm
 
