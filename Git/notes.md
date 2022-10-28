@@ -1,22 +1,35 @@
 ## Commands
 
+`checkout`
+- `-`     Checkout prev branch
+
 `add`
-- `--patch`     staging files while revising every change
+- `--patch`     Staging files while revising every change
+
+`commit`
+- `-am`     add . + message
+- `--amend -m "<msg>"`    Update latest commit message. If additional files are added will also add them to prev commit. `--no-edit` instead of `-m` to not change commit message
 
 `push`
-- `-u origin <branch_name>`    new remote branch with this name will be created. -u - will set this branch as an upstream branch, so that all future pushes are done against this remote branch automatically
-- `origin --delete <remote-branch-name>`     delete remote branch
+- `-u origin <branch_name>`    New remote branch with this name will be created. -u - will set this branch as an upstream branch, so that all future pushes are done against this remote branch automatically
+- `origin --delete <remote-branch-name>`     Delete remote branch
 
 `pull`
-- `--rebase`      read here: https://stackoverflow.com/a/48929413/1765558
+- `--rebase`      Read here: https://stackoverflow.com/a/48929413/1765558
 
 `rm`
-- `--cached <file>`     untrack an uncommited file
+- `--cached <file>`     Untrack an uncommited file
 
 `reset`
-- `HEAD <file>`     unstage a staged file
+- `HEAD <file>`     Unstage a staged file
 
-`bisect`      find broken commit (see: https://www.metaltoad.com/blog/beginners-guide-git-bisect-process-elimination)
+`bisect`      Find broken commit (see: https://www.metaltoad.com/blog/beginners-guide-git-bisect-process-elimination)
+
+`config`
+- `--global alias.ac "<command>"`     Add command alias
+
+`log`
+- `--graph --oneline --decorate`      Tree view of commit log
 
 --------------------------------------------------------------------------------
 

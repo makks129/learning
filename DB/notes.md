@@ -1,5 +1,7 @@
 ## ACID
 
+[InnoDB and the ACID Model](https://dev.mysql.com/doc/refman/8.0/en/mysql-acid.html)
+
 ### Transactions
 Multiple queries
 Unit of work
@@ -122,13 +124,13 @@ You can create index concurrently to not block DB mutation queries
 [SQL Server and Azure SQL index architecture and design guide](https://docs.microsoft.com/en-us/sql/relational-databases/sql-server-index-design-guide?view=sql-server-ver15)
 
 __Clustered index__
-It's a table where the data for the rows are stored.
+Table where the data for the rows are stored
 - Only 1 per table
 - If there is PK it will be based on it
 __Non-clustered Index__
 The indexes other than PRIMARY indexes (clustered indexes). Aka secondary indexes.
 The non-clustered index and table data are both stored in different places.
-[Difference between MySQL Clustered and Non-Clustered Index](https://www.javatpoint.com/mysql-clustered-vs-non-clustered-index#:~:text=Definition-,A%20clustered%20index%20is%20a%20table%20where%20the%20data%20for,called%20a%20non%2Dclustered%20index.)
+[Difference between MySQL Clustered and Non-Clustered Index](https://www.javatpoint.com/mysql-clustered-vs-non-clustered-index)
 
 In Postgres secondary index key points to the tuple
 In MySQL secondry index key points to the primary key (so if primary key is large, like UUID, or poorly chosen, this can be a problem)
@@ -268,6 +270,30 @@ Problems:
 - Connections pool
 - ...
 
+[MySQL Connection Handling and Scaling](https://dev.mysql.com/blog-archive/mysql-connection-handling-and-scaling)
+MySQL server executes in a single OS process
+Each user connection (aka session) executes in a new thread in parallel
+A connection request is a TCP-IP connect message sent to port 3306
+Each connection stays connected until it disconnects
+![Connect](https://dev.mysql.com/blog-archive/mysqlserverteam/wp-content/uploads/2019/03/Connect-1024x427.png)
+Incoming connection requests are queued and then processed by the receiver thread one by one
+
+__Short Lived Connections__
+The client opens a connection, executes a simple query, and then closes the connection
+MySQL is good at handling short connections (up to 80.000 connects/disconnects per second)
+
+__Long Lived Connections__
+A long lived connection is a connection that is open "indefinitely"
+The maximum number of clients the server permits to connect simultaneously is determined by the `max_connections` system variable
+
+__What is the maximum load?__
+You have to test your workload, for example as follows: You can start with 2 busy clients and measure server TPS and Latency, and then continue step-wise by doubling the number of clients for each step. Initially, TPS will increase and latency will be constant for each step you take. At some point TPS will be the same as before and latency will start to increase, and this is the maximum load and the maximum number of (useful) clients.
+> Based on accumulated experience we recommend at maximum 4 times number of user threads as the number of real CPU cores, e.g. 4×48(cores)=196(user threads).
+
+__Connection pooling__
+Connection pool is a client side approach (as opposed to Thread pool which is a server side approach to handle connections)
+[FAQ: MySQL Enterprise Thread Pool](https://dev.mysql.com/doc/refman/8.0/en/faqs-thread-pool.html)
+
 
 --------------------------------------------------------------------------------
 ## Replication
@@ -369,6 +395,7 @@ __RocksDB__
 --------------------------------------------------------------------------------
 ## Tools
 
+Benchmarking
 [sysbench](https://github.com/akopytov/sysbench)
 
 
