@@ -159,3 +159,54 @@ for i, num := range nums { // use `_` instead of `i` if index is not needed
 // Loop map
 for k, v := range m {} // or only `k` for just keys
 ```
+
+## Goroutines
+Goroutine is a lightweight thread managed by the Go runtime (!= OS threads)
+Concurrent
+Efficient and can be executed in hundreds and even thousands
+```go
+// Sequential
+runLongTask(1)
+runLongTask(2)
+// Concurrent
+go runLongTask(1)
+go runLongTask(2)
+```
+
+### Channels
+Channels are typed
+Sending and receiving are blocking operations and require both to be set up to complete
+Sync nature of channels allows to synchronize several goroutines
+```go
+func main() {
+  channel := make(chan string)
+  bufferedChannel := make(chan string, 2) // buffered channel with a capacity of 2, will not block until capacity is full
+  go runTask(channel)
+
+  msg, open := <- c // receive a message from a channel and open state  
+  for msg := range c { // alternatively we can wrap receiver in for range, it will loop until the channel is closed (no need to check for open)  
+  }
+  select { // use select to wait for whatever message comes first from several channels (so receivers don't block each other)
+    case msg1 := <- c1
+    case msg2 := <- c2
+  }
+}
+
+func runTask(channel chan string) {
+  c <- "message" // send a message to the main channel from a goroutine
+  close(c) // as a sender you can close the channel (receivers should not close channels)
+}
+
+// Specifying direction of a channel
+jobs <-chan int // only to receive
+results chan<- int // only to send
+```
+
+
+## Main
+```go
+// main.go
+package main
+func main() {...}
+```
+`go run main.go`

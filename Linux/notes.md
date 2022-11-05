@@ -36,3 +36,28 @@ switch user
 - `- <user>` to user
 `visudo`
 edit sudoers file
+
+
+## Packages
+
+### dpkg
+Low-level package manager
+Installs package files (binaries, e.g. `.deb`)
+`.deb` - Debian based packages for Linux
+`.rpm` - base for packages of some other systems
+
+### apt
+Advanced Package Tool
+Installs packages from apt repository
+
+`apt update` - updates list of things that can be downloaded from apt repo. Do this before every install
+`apt install <package>`
+`apt remove <package>` - (safe) remove package but not user data
+`apt purge <package>` - (unsafe) remove package and user data
+
+`apt list` - list all available packages
+`apt list --installed` - installed packages on your system
+`apt show <package>` - info about a package
+
+`apt upgrade` - update your packages (usually used with `apt update` before that)
+`apt full-upgrade` - will also remove old versions
