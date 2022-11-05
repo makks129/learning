@@ -161,9 +161,9 @@ for k, v := range m {} // or only `k` for just keys
 ```
 
 ## Goroutines
-Goroutine is a lightweight thread managed by the Go runtime (!= OS threads)
-Concurrent
-Efficient and can be executed in hundreds and even thousands
+- Goroutine is a lightweight thread managed by the Go runtime (!= OS threads)
+- Concurrent
+- Efficient and can be executed in hundreds and even thousands
 ```go
 // Sequential
 runLongTask(1)
@@ -174,9 +174,9 @@ go runLongTask(2)
 ```
 
 ### Channels
-Channels are typed
-Sending and receiving are blocking operations and require both to be set up to complete
-Sync nature of channels allows to synchronize several goroutines
+- Channels are typed
+- Sending and receiving are blocking operations and require both to be set up to complete
+- Sync nature of channels allows to synchronize several goroutines
 ```go
 func main() {
   channel := make(chan string)

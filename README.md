@@ -1,6 +1,6 @@
 # Learning
 
-[My tech growth plan](https://docs.google.com/spreadsheets/d/1KPVW00rsdCUHFdyH_FzBSt98LmHMrgI5rNkcNFjVno8/edit#gid=599921978)
+[TECH GROWTH PLAN](https://docs.google.com/spreadsheets/d/1KPVW00rsdCUHFdyH_FzBSt98LmHMrgI5rNkcNFjVno8/edit#gid=599921978)
 
 ### Resources
 
