@@ -124,8 +124,6 @@ func adder() func(int) int {
 }
 ```
 
-Higher order functions are
-
 ## Conditionals
 ```go
 if x < y {} // common convention is to not use ()
