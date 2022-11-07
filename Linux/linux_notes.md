@@ -76,12 +76,41 @@ Installs packages from apt repository
 
 ## Processes / Daemons
 
-Process - instance of a running program
+**Process** - instance of a running program
+**Deamon** - non-interractive process (have `d` at the end of the name, like `sshd`), aka Unit
+
+### Processes
+
+Processes can be foreground (e.g. a shell program you need to quit with ctrl+c) or background
 
 `ps -aux` - list all processes
 `pstree` - show process tree
 
-Deamon - non-interractive process (have `d` at the end of the name, like `sshd`), aka Unit
+`top` - real-time list of processes by CPU usage
+`htop` - similar but with more data
+
+`pgrep <process>` - returns process id
+
+`kill <pid>` (`pkill <process>`) - kill a process by id (or by name)
+- `-#` - # is a number, specify kill code
+
+Kill codes (`kill -l`):
+- `-15`-`SIGTERM` - default signal sent on kill (soft-kill, more like request to kill)
+- `-2`-`SIGINT`) - CTRL+C - interrupt
+- `-19`-`SIGSTOP` / `18`-`SIGCONT` - CTRL+Z - will put foreground process to sleep (it will be stopped but will still be a foreground process), or then return it back from sleep
+- `-9`-`SIGKILL` - hard-kill
+
+
+`jobs` - lists foreground processes
+
+`bg <job_id>` - puts a foreground process to the background
+
+`fg <job_id>` - puts a background process to the foreground
+
+`<some_process_start_command> &` - starts running a process in the background
+
+
+### Daemons
 
 `systemd` - master daemon:
 - service manager
@@ -99,3 +128,7 @@ Deamon - non-interractive process (have `d` at the end of the name, like `sshd`)
 - `list-units` - list active units (services, timers, devices, etc)
   - `--all` - list all (also inactive)
   - `-t <type>` - list units of type (e.g. `-t service`)
+
+
+// TODO
+mods/permissions
