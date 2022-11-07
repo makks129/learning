@@ -1,4 +1,4 @@
-## FS basics
+## FS
 
 Everything in Linux is a file (commands, configs, devices, etc.)
 
@@ -27,9 +27,13 @@ Everything in Linux is a file (commands, configs, devices, etc.)
 ### Permissions
 
 `----------` - file
+
 `d---------` - dir
+
 `-rwx------` - owner
+
 `----rwx---` - group
+
 `-------rwx` - other (everyone)
 
 #### chmod / chown
