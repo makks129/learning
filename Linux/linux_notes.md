@@ -1,3 +1,119 @@
+## FS basics
+
+Everything in Linux is a file (commands, configs, devices, etc.)
+
+`/` - root
+- `home` - dir for users' home dirs
+- `root` - dir for root home dir
+- `bin` - binaries (Linux commands are here also)
+- `sbin` - super bin (commands only for admin)
+- `usr` - user dir
+  - `bin`/`sbin` - mostly overlap with root `bin`/`sbin`
+  - `local` - also command binaries (but also for custom ones)
+  - `lib` - libs that command binaries share
+- `etc` - [ehtsee] configs, etc
+  - `network`
+    - `interfaces` - network interfaces/settings
+- `boot` - files needed to boot
+- `var` - log files, etc
+- `tmp` - temporary files
+- `lib` - shared lib files
+- `dev` - devices
+  - `vda`/`vda1`/`sda`/`sda1` - hard drives
+- `media` - mount drives (by system)
+- `mnt` - mount drives (manual mount)
+
+
+### Permissions
+
+`----------` - file
+`d---------` - dir
+`-rwx------` - owner
+`----rwx---` - group
+`-------rwx` - other (everyone)
+
+#### chmod / chown
+
+`chown <user>:<group> <file>` - change file ownership
+
+`chmod <permissions> <file>`
+- (u)ser, (g)roup, (o)ther, (a)ll
+- (r)ead, (w)rite, (e)xecute
+- (+) add permission, (-) remove permission, (=) set permission
+
+**Numeric**: read(4) + write(2) + execute(1)
+
+| Decimal | Binary | Permission | Permission meaning       |
+| ------- | ------ | ---------- | ------------------------ |
+| 7       | 111    | rwx        | read, write, and execute |
+| 6       | 110    | rw-        | read and write           |
+| 5       | 101    | r-x        | read and execute         |
+| 4       | 100    | r--        | read only                |
+| 3       | 011    | -wx        | write and execute        |
+| 2       | 010    | -w-        | write only               |
+| 1       | 001    | --x        | execute only             |
+| 0       | 000    | ---        | none                     |
+
+**Examples**
+- `chmod o+rwx <file>` - add rwx for other
+- `chmod o=rw <file>` - set rw for other
+- `chmod og-x <file>` - remove x from other and group
+- `chmod a+r <file>` - everyone can read
+- `chmod 724 <file>`
+  - 1st: owner = everything(7 = 4+2+1)
+  - 2nd: group = writing(2)
+  - 3rd: other = reading(4)
+
+
+## Utils and Navigation
+
+`whoami` - current user
+
+`which` - file/dir location
+
+`pwd` - current dir
+
+`$PWD` - var for current dir
+
+`$OLDPWD` - var for prev dir (`cd -` will use this var to switch to prev dir)
+
+`tree` - show file tree from this dir
+
+`sudo !!` - run prev command w sudo
+
+CTRL+X+E - open current command in default text editor
+
+CTRL+R - reverse search
+
+`history` - command history
+
+### Files
+
+`touch`
+
+`mkdir`
+- `-p` - create dirs (e.g. `mkdir -p x/y/z` will create x, y, z structure)
+
+`cat` / `less` / `tail`
+
+`tail -f <file>` - tail file in a foreground
+
+`cat > file.txt` (CTRL+D to save) - write to file
+
+`cat << EOF > file.txt` (`EOF`+Enter to finish) - multiline write to file and finish on `EOF`
+
+`echo "foo" > file.txt` - write to file
+
+`mv <dir/file> <dir/file>` - move/rename
+
+`cp <dir/file> <dir/file>` - copy
+- `-r` - recursive, copy all files inside a dir too
+
+`rm` - remove file
+- `-rf` - recursive, force
+
+`rmdir` - remove dir
+
 ## Users
 
 `/etc/passwd`
@@ -109,7 +225,6 @@ Kill codes (`kill -l`):
 
 `<some_process_start_command> &` - starts running a process in the background
 
-
 ### Daemons
 
 `systemd` - master daemon:
@@ -128,7 +243,3 @@ Kill codes (`kill -l`):
 - `list-units` - list active units (services, timers, devices, etc)
   - `--all` - list all (also inactive)
   - `-t <type>` - list units of type (e.g. `-t service`)
-
-
-// TODO
-mods/permissions
