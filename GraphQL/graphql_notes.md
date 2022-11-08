@@ -153,9 +153,6 @@ __Cons__
 
 ## GraphQL in PD
 
-[Docs](https://pipedrive.atlassian.net/wiki/spaces/ENG/pages/2670723808/GraphQL+HUB)
-There are also 2 TEX talks + 1 TalentLMS course
-
 Native GraphQL impl in [menu-waitress](https://github.com/pipedrive/menu-waitress/pull/473/files)
 
 Generated GraphQL:

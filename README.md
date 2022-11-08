@@ -5,7 +5,6 @@
 ### Resources
 
 #### Blogs
-- [TEX in Pipedrive](https://pipedrive.atlassian.net/wiki/spaces/ENG/pages/2556757/TEX+Internal+tech+talks+knowledge+sharing+sessions)
 - [Pipedrive Engineering Blog](https://medium.com/pipedrive-engineering)
 - [Spotify Blog: Engineering Culture](https://engineering.atspotify.com/tag/engineering-culture/)
 - [Engineering at Meta (Facebook)](https://engineering.fb.com/)
