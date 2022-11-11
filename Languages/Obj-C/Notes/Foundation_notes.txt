@@ -1,0 +1,196 @@
+Foundation
+**********
+
+1) Classes
+
+NSString
+- immutable
+- to "change" it, use stringByAppendingString method, it will return new string
+
+NSMutableString
+- mutable
+
+NSValue
+- in addition to the basic C scalar types, NSValue can also be used to represent pointers and structures
+- you can create an NSValue instance by providing a pointer to the structure as well as an encoded Objective-C type:
+	struct CustomStruct {...} aStruct;
+	NSValue *structValue = [NSValue value:&aStruct withObjCType:@encode(CustomStruct)];
+
+NSNumber
+- subclass of NSValue
+- immutable (no mutable subclass)
+- wrapper object
+- used to represent any of the basic C scalar types, including char, double, float, int, long, short, and the unsigned variants of each, as well as the Objective-C Boolean type, BOOL
+- it’s possible to request the scalar value using one of the accessor methods: intValue, charValue, etc.
+- NSNumber is actually a class cluster. This means that when you create an instance at runtime, you’ll get a suitable concrete subclass to hold the provided value. Just treat the created object as an instance of NSNumber
+
+NSInteger
+- scalar
+- typedef int/long (platform-dependent)
+
+NSUInteger
+- scalar
+- typedef unsigned int/long (platform-dependent)
+
+
+Collections
+	Collections only store objects, for scalar types first convert to NSNumber or NSValue.
+	The only requirement is that each item is an Objective-C object— there’s no requirement for each object to be an instance of the same class.
+	Rather than somehow maintaining a separate copy of each collected object, the collection classes use strong references to keep track of their contents. 
+
+	NSSet
+	- immutable
+	- init/factory creation: nil-terminated
+	- support NSFastEnumeration protocol
+	- support NSEnumerator protocol
+
+
+	NSArray
+	- immutable
+	- init/factory creation: nil-terminated
+	- @-syntax creation: no nil-termination
+	- subscripting syntax possible
+	- support NSFastEnumeration protocol
+	- support NSEnumerator protocol
+
+	NSDictionary
+	- immutable
+	- init/factory creation: nil-terminated, keys to the right, values to the left
+	- @-syntax creation: no nil-termination, keys to the left, values to the right
+	- strings are used for keys, even though other types possible (but see tutorial for issues)
+	- support NSFastEnumeration protocol 
+	- support NSEnumerator protocol
+
+	NSMutableSet
+	- mutable
+
+	NSMutableArray
+	- mutable
+
+	NSMutableDictionary
+	- mutable
+
+NSRange
+- C struct that holds a location and a length
+- used for substringing:
+	NSRange substringRange = [@"very long day" rangeOfString:@"long"];
+
+NSData
+
+NSDate
+
+NSKeyedArchiver
+- creates an archive of the collected objects, each object must support the NSCoding protocol
+
+NSCoding
+
+
+NSNull
+- with it you can add nil to collection classes
+
+
+
+
+
+2) Methods
+
+NSLog
+- log a message to the console
+- it’s similar to the standard C library printf() function, and takes a variable number of parameters, the first of which must be an Objective-C string
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

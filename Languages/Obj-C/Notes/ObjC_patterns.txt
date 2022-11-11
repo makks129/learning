@@ -1,0 +1,166 @@
+Objective-C Patterns
+********************
+
+
+
+1) Delegation
+
+	// DELEGATOR
+		@interface UIButton : UIControl
+		@property (weak, nonatomic) id delegate;
+		...
+		@end
+			@implementation UIButton
+			- (void)methodCalledOnClick {
+				[delegate onClick];
+			}
+			...
+			@end
+
+	// PROTOCOL
+		@protocol UIButtonDelegate
+		@required
+		- (void)onClick;
+		@end
+
+	// DELEGATE
+		@interface ViewController : UIViewController <UIButtonDelegate>
+		@property (nonatomic) UIButton *button;
+		...
+		@end
+			@implementation
+			- (void)someMethod {
+				[button setDelegate:self];
+			}
+			- (void)onClick {
+				// do something on button click
+			}
+			...
+			@end
+
+	Button can send onClick message to enyone who wants to get it.
+	Button is the delegator.
+	Button does it through UIButtonDelegate protocol.
+	If you implement it - you can get the message.
+	ViewController wants to get the messages.
+	ViewController is the delegate.
+	ViewController implements UIButtonDelegate protocol.
+	As long as ViewController is strong-using Button, Button will keep weak reference to ViewController and send messages to it.
+	Case 1: when ViewController doesn't want to get messages anymore it abandons Button and Button abandons ViewController (due to weak reference).
+	Case 2: when ViewController itself is not needed, it is not strong-used by someone, so it gets deallocated and abandons the Button, then Button abandons ViewController too and gets deallocated itself.
+
+	Note: Button doesn't care if it has the delegate or not, it can send the messages to nil delegate.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

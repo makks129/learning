@@ -1,0 +1,9 @@
+[0m[[0minfo[0m] [0m[32mFunSetSuite:[0m[0m
+[0m[[0minfo[0m] [0m[32m- contains is implemented[0m[0m
+[0m[[0minfo[0m] [0m[32m- singletonSet(1) contains 1[0m[0m
+[0m[[0minfo[0m] [0m[32m- union contains all elements of each set[0m[0m
+[0m[[0minfo[0m] [0m[32m- intersect contains elements that are presented in both sets[0m[0m
+[0m[[0minfo[0m] [0m[32m- diff contains elements of one set that are not in the other set[0m[0m
+[0m[[0minfo[0m] [0m[32m- filter contains elements of one set that also satisfy the predicate[0m[0m
+[0m[[0minfo[0m] [0m[32m- forall checks whether all bounded integers within the set satisfy the predicate[0m[0m
+[0m[[0minfo[0m] [0m[32m- exists checks whether there exists a bounded integer within the set that satisfies the predicate[0m[0m

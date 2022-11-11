@@ -1,0 +1,740 @@
+C Programming Language
+**********************
+FOR MORE INFO AND SPECIFIC DETAILS SEE APPENDIX A IN THE BOOK, WHICH SUMMARIZES ALL RULES OF C LANGUAGE
+**********************
+
+
+1) C Preprocessor
+
+	1.1) #include
+		Replaces the include line with the contents of included file.
+		When an included file is changed, all files that depend on it must be recompiled.
+			#include <stdio.h> // This variant is used for system header files. It searches for a file named file in a standard list of system directories
+			#include "stdio.h" // This variant is used for header files of your own program. It searches for a file named file first in the directory containing the current file, then in the same directories used for <file>
+	1.2) #define
+		Defines symbolic constant. Any occurence of constant will be replaced by the corresponding replacement text.
+		The scope of a name defined with #define is from its point of definition to the end of the source file being compiled.
+		A definition may use previous definitions.
+			#define MAX 100
+
+			1.2.1) Marcos
+				It is also possible to define macros with arguments, so the replacement text can be different for different calls of the macro.
+					#define max(A, B) ((A) > (B) ? (A) : (B))
+					x = max(p, r); // will be replaced with x = ((p)>(r) ? (p) : (r));
+					// Note: this approach has some pitfalls, see book for examples
+				See book for # and ## preprocessor operators in macroses.
+
+	1.3) #undef
+		Names may be undefined with #undef, usually to ensure that a routine is really a function, not a macro:
+			#undef max
+			int max(int a, int b) {...}
+
+	1.4) Conditional inclisuon
+
+		1.4.1) #if, #elif, #else, #endif
+			The #if line evaluates a constant integer expression (which may not include sizeof, casts, or enum constants). If the expression is non-zero, subsequent lines until an #endif or #elif or #else are included.
+
+		1.4.2) defined or #ifdef, #ifndef
+			The expression defined(name) in a #if is 1 if the name has been defined, and 0 otherwise.
+			For example, to make sure that the contents of a file hdr.h are included only once, the contents of the file are surrounded with a conditional like this:
+				#if !defined(HDR) 
+				#define HDR
+					/* contents of hdr.h go here */
+				#endif
+			If this style is used consistently, then each header can itself include any other headers on which it depends, without the user of the header having to deal with the interdependence.
+			#ifdef or #ifndef can be used instead of #if defined or #if !defined
+				#ifndef HDR
+				#define HDR
+					/* contents of hdr.h go here */
+				#endif
+
+
+2) Variables
+
+	2.1) Primitive types
+		Are machine-depenedent.
+		int
+		float
+		double
+		char
+			int i; // declarating the variable
+			i = 1; // initializing the variable
+			int i = 1; // both
+
+			2.1.1) char
+				A character constant is an integer, written as one character within single quotes, such as 'x'. The value of a character constant is the numeric value of the character in the machine's character set.
+				The character constant '\0' represents the character with value zero, the null character (numeric value is 0).
+				char can also be used for small non-character integers since char is a byte in memory.
+
+	2.2) Qualifiers
+		
+		2.2.1) short long
+			Can be used as types, ommiting the primitive type itself.
+			short
+			long
+				short int i;
+				long int i;
+				short i; // int can be ommited here
+			short ~ <= 16bits
+			int ~ == 16 or 32bits
+			long ~ >= 32bits 
+			An integer too big to fit into an int will be taken as a long.
+
+		2.2.2) long double
+			Third (biggest) size for floating-point numbers.
+				long double d; // double cannot be ommited here
+
+		2.2.3) signed unsigned
+			The qualifier signed or unsigned may be applied to char or any integer. unsigned numbers are always positive or zero, and obey the laws of arithmetic modulo 2n, where n is the number of bits in the type. So, for instance, if chars are 8 bits, unsigned char variables have values between 0 and 255, while signed chars have values between -128 and 127 (in a two's complement machine.) Whether plain chars are signed or unsigned is machine-dependent, but printable characters are always positive.
+
+		2.2.4) const
+			The qualifier const can be applied to the declaration of any variable to specify that its value will not be changed. For an array, the const qualifier says that the elements will not be altered.
+				const double e = 2.71828182845905;
+				const char str[] = "hello, world";
+
+			2.2.4.1) const with pointers
+				If the const appears before the * then it relates to the object and if the const appears after the * it relates to the pointer itself.
+					const int cintA = 10; // A constant int
+					int       intB = 20; // A nonconstant int
+					const int *pointer_to_const_int = &cintA; // A pointer to a const int. The POINTER ITSELF IS NOT CONST
+					*pointer_to_const_int = 20; // Compiler error *pointer_to_const_int is a constant and cannot be changed
+					pointer_to_const_int++; // This is fine, it's simple pointer arithmetic moving the pointer to the next memory location. The pointer itself is not const so it may be repointed
+					const int *const  const_pointer_to_const_int = &cintA; // Here we have a constant pointer to a constant int. Notice as pointer is const we must initialise it here
+					const_pointer_to_const_int++; // This is now illegal. The pointer itself is const and may not be repointed.
+					*const_pointer_to_const_int = 40; // Again compiler error. Pointer points to constant data. You cannot write through this pointer.
+					int *pointer_to_int = &intB;
+					*pointer_to_int = 40; // This is fine. Data pointed to is not constant
+					pointer_to_int++; // Again fine, pointer is not constant, you may repoint it
+					int *const  const_pointer_to_int = &intB; // Constant pointer to non-constant int. Pointer is const so must be initialised here.
+					const_pointer_to_int++; // Compiler error. The pointer itself is constant and may not be repointed
+					*const_pointer_to_int = 80; // This is fine. Although the pointer is constant the object pointed to is not constant and so may be written to
+
+		2.2.5) static
+
+			2.2.5.1) external variables
+				If the variable is external in particular file but is used only by functions inside this file and not intended to be accessed by other files is can be declared static. The static declaration, applied to an external variable or function, limits the scope of that object to the rest of the source file being compiled. If the two routines and the two variables are compiled in one file, as in:
+					static int a;
+					static int b;
+					void func1() {
+						... // uses a and b
+					}
+					void func2() {
+						... // uses a and b
+					}
+				then no other routine will be able to access a and b, and those names will not conflict with the same names in other files of the same program. 
+
+			2.2.5.2) functions
+				The external static declaration is most often used for variables, but it can be applied to functions as well. Normally, function names are global, visible to any part of the entire program. If a function is declared static, however, its name is invisible outside of the file in which it is declared.
+
+			2.2.5.3) internal variables
+				The static declaration can also be applied to internal variables. Internal static variables are local to a particular function just as automatic variables are, but unlike automatics, they remain in existence rather than coming and going each time the function is activated. This means that internal static variables provide private, permanent storage within a single function.
+
+		2.2.6) register
+			A register declaration advises the compiler that the variable in question will be heavily used. The idea is that register variables are to be placed in machine registers, which may result in smaller and faster programs. But compilers are free to ignore the advice.
+			The register declaration can only be applied to automatic variables and to the formal parameters of a function.	
+				func(register int a) {
+       				register int b;
+       				//...
+				}
+			In practice, there are restrictions on register variables, reflecting the realities of underlying hardware. Only a few variables in each function may be kept in registers, and only certain types are allowed. Excess register declarations are harmless, however, since the word register is ignored for excess or disallowed declarations. And it is not possible to take the address of a register variable, regardless of whether the variable is actually placed in a register. The specific restrictions on number and types of register variables vary from machine to machine.
+
+	2.3) Suffixes
+		f / F - for float
+		l / L - for long (or long double)
+		u / U - for unsigned
+		ul / UL - for long unsigned
+
+	2.4) Arrays
+		Array declaration:
+			char line[10];
+		Array initialization:
+			line = {'a', 'b', 'c'};
+		Array declaration and initialization:
+			int nums[] = {1, 2, 3};
+			char str[] = "Hello, world";
+			char str = "Hello, world"; // it's a special case for char arrays
+		Using array elements:
+			line[0] = 'a';
+
+			2.4.1) Multidimentional arrays
+				int arr[10][5]; // declares 2D array 10 rows by 5 columns
+
+				Passing multidimentional arrays to functions:
+				If a two-dimensional array is to be passed to a function, the parameter declaration in the function must include the number of columns; the number of rows is irrelevant, since what is passed is, as before, a pointer to an array of rows, where each row is an array of 5 ints. In this particular case, it is a pointer to objects that are arrays of 5 ints. Thus if the array arr is to be passed to a function func, the declaration of func would be one of this three:
+					func(int arr[10][5]) { ... }
+					func(int arr[][5]) { ... }
+					func(int (*arr)[5]) { ... }
+				last one says that the parameter is a pointer to an array of 5 integers. The parentheses are necessary since brackets [] have higher precedence than *. Without parentheses, the declaration
+   					int *arr[5] 
+				is an array of 5 pointers to integers. More generally, only the first dimension (subscript) of an array is free; all the others have to be specified.
+
+				Difference between multidimentional arrays and pointer arrays:
+				Given the definitions
+					int a[10][20];
+					int *b[10];
+				then a[3][4] and b[3][4] are both syntactically legal references to a single int. But a is a true two-dimensional array: 200 int-sized locations have been set aside, and the conventional rectangular subscript calculation 20*row+col is used to find the element a[row,col]. For b, however, the definition only allocates 10 pointers and does not initialize them; initialization must be done explicitly, either statically or with code. Assuming that each element of b does point to a twenty-element array, then there will be 200 ints set aside, plus ten cells for the pointers. The important advantage of the pointer array is that the rows of the array may be of different lengths. That is, each element of b need not point to a twenty-element vector; some may point to two elements, some to fifty, and some to none at all.
+
+	2.5) Strings
+		Technically, a string constant is an array of characters. The internal representation of a string has a null character '\0' at the end, so the physical storage required is one more than the number of characters written between the quotes. 
+			"Hello, world"
+		Concatenation is done without + and happens at compile time:
+			"Hello, " "world" // equals to "Hello, world"
+		Declaration and initialization:
+			char str[] = "Hello, world";
+			char str = "Hello, world"; // it's a special case for char arrays
+
+	2.6) Enumerations
+		An enumeration is a list of constant integer values.
+			enum boolean { NO, YES };
+		The first name in an enum has value 0, the next 1, and so on, unless explicit values are specified.
+			enum escapes { BACKSPACE = '\b', TAB = '\t', RETURN = '\r' };
+			enum months { JAN = 1, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC }; // FEB = 2, MAR = 3, etc.
+
+	2.7) Default values
+		External variables are initialized to 0 by default.
+		Internal valiables, for which is no explicit initializer, have undefined (i.e. garbage) values.
+
+	2.8) Type conversion
+		See all rules in the book.
+		Some of the rules:
+		- longer integers are converted to shorter ones or to chars by dropping the excess high-order bits
+		- if x is float and i is int, then x = i and i = x both cause conversions; float to int causes truncation of any fractional part
+		- when a double is converted to float, whether the value is rounded or truncated is implementation dependent
+		- since an argument of a function call is an expression, type conversion also takes place when arguments are passed to functions. In the absence of a function prototype, char and short become int, and float becomes double
+
+		2.8.1) Casting (coercion)
+				int n = 2;
+				sqrt((double) n);
+				// Note: the cast produces the value of n in the proper type; n itself is not altered.
+			If arguments are declared by a function prototype the declaration causes automatic coercion of any arguments when the function is called.
+				double sqrt(double);
+				sqrt(2); // 2 is automatically coerced to 2.0
+
+	2.9) Internal and external declarations and definitions
+		The scope of an external variable or a function lasts from the point at which it is declared to the end of the file being compiled. For example, if main, sp, val, push, and pop are defined in one file, in the order shown above:
+			main() {...}
+			int sp = 0;
+			double val[MAXVAL];
+			void push(double f) {...}
+			double pop(void) {...}
+		then the variables sp and val may be used in push and pop simply by naming them; no further declarations are needed. But these names are not visible in main, nor are push and pop themselves.
+		On the other hand, if an external variable is to be referred to before it is defined, or if it is defined in a different source file from the one where it is being used, then an extern declaration is mandatory.
+		It is important to distinguish between the declaration of an external variable and its definition. A declaration announces the properties of a variable (primarily its type); a definition also causes storage to be set aside. If the lines
+			int sp;
+			double val[MAXVAL];
+		appear outside of any function, they define the external variables sp and val, cause storage to be set aside, and also serve as the declarations for the rest of that source file. On the other hand, the lines
+			extern int sp;
+			extern double val[];
+		declare for the rest of the source file that sp is an int and that val is a double array (whose size is determined elsewhere), but they do not create the variables or reserve storage for them.
+		There must be only one definition of an external variable among all the files that make up the source program; other files may contain extern declarations to access it. (There may also be extern declarations in the file containing the definition.) Array sizes must be specified with the definition, but are optional with an extern declaration.
+		Initialization of an external variable goes only with the definition.
+		Although it is not a likely organization for this program, the functions push and pop could be defined in one file, and the variables val and sp defined and initialized in another. Then these definitions and declarations would be necessary to tie them together:
+			in file1:
+				extern int sp;
+      			extern double val[];
+				void push(double f) { ... }
+      			double pop(void) { ... }
+			in file2:
+				int sp = 0;
+				double val[MAXVAL];
+		Because the extern declarations in file1 lie ahead of and outside the function definitions, they apply to all functions; one set of declarations suffices for all of file1. This same organization would also bee needed if the definition of sp and val followed their use in one file.
+
+
+3) Functions
+	
+	3.1) Prototype declaration
+		Functions must be declared before they can be used.
+			int func(int a, int b);
+			void func(float);
+			int func(void);
+		If there is no function prototype, a function is implicitly declared by its first appearance in an expression.
+		If a name that has not been previously declared occurs in an expression and is followed by a left parentheses, it is declared by context to be a function name, the function is assumed to return an int, and nothing is assumed about its arguments.
+			sum += func(num);
+		Furthermore, if a function declaration does not include arguments:
+			double func();
+		that too is taken to mean that nothing is to be assumed about the arguments of atof; all parameter checking is turned off.
+		This special meaning of the empty argument list is intended to permit older C programs to compile with new compilers. But it's a bad idea to use it with new C programs. If the function takes arguments, declare them; if it takes no arguments, use void.
+			int func(void);
+
+	3.2) Default return type is int so it can be ommited
+			int returnValue() {...}
+			returnValue() {...}
+
+	3.3) Names of arguments
+			void func(int a, int b) {...}
+			void func(int, int) {...} // can be ommited
+		For undefined value of arguments ... is used:
+			int printf(char *format, ...);
+			// See book for example on how to extract values from arguments in "..."
+
+	3.4) Internal (local) variables 
+		Function arguments are called by value.
+		Primitive type values are passed and assigned to local variables.
+		Array type values are passed as references, so local variable modification will also modify an array passed in caller function.
+		The const declaration can also be used with array arguments, to indicate that the function does not change that array:
+			int strlen(const char[]);
+		The result is implementation-defined if an attempt is made to change a const.
+
+	3.5) External (global) variables
+		Must be defined outside any functions. Before function can use external variable, it should be declared inside the function using keyword "extern".
+		In certain circumstances, the extern declaration can be omitted. If the definition of the external variable occurs in the source file before its use in a particular function, then there is no need for an extern declaration in the function.
+			int globalVar;
+			void func() {
+				int globalVar; // declared before func - extern not needed
+				extern int globalArray[]; // declared after func - need extern
+			}
+			int globalArray[10];
+		If the program is in several source files, and a variable is defined in file1 and used in file2 and file3, then extern declarations are needed in file2 and file3 to connect the occurrences of the variable.
+
+	3.6) Return values
+		The calling function is free to ignore the returned value. Furthermore, there need to be no expression after return; in that case, no value is returned to the caller. Control also returns to the caller with no value when execution ``falls off the end'' of the function by reaching the closing right brace. It is not illegal, but probably a sign of trouble, if a function returns a value from one place and no value from another. In any case, if a function fails to return a value, its ``value'' is certain to be garbage.
+
+		If return value is non-integer the calling function must know it. This can be done by explicitly by declaring callee function in the caller.
+			void caller() {
+				double d, n, callee(char[]); // function is explicitly declared to return double. It can also be declared among other variables
+				...
+			}
+		If there is no function prototype, a function is implicitly declared by its first appearance in an expression.
+		If a name that has not been previously declared occurs in an expression and is followed by a left parentheses, it is declared by context to be a function name, the function is assumed to return an int, and nothing is assumed about its arguments.
+
+		Functions can also return pointers:
+			int *func(char a) {...}
+
+
+4) Operators
+	
+	4.1) Unary negation operator
+		! - converts non-zero operand to 0 and zero operand to 1
+			if(!valid) {...} // equals to if(valid == 0) {...}
+
+	4.2) Relational and logical expressions
+		Relational expressions like i > j and logical expressions connected by && and || are defined to have value 1 if true, and 0 if false.
+			a = 3 > 2 && 5 > 2; // a == 1
+		Functions that return true can return any non-zero value.
+
+	4.3) Precedence and order of evaluation
+		See all rules in the book.
+		Some of the rules:
+		- C does not specify the order in which the operands of an operator are evaluated. (The exceptions are &&, ||, ?:, and ',')
+			x = f() + g(); // f may be evaluated before g or vice versa
+		- similarly, the order in which function arguments are evaluated is not specified
+			printf("%d", ++n, pow(2,n)); // depending on compiler n can be incremented before or after pow
+
+5) Statements
+	
+	5.1) if-else
+		if tests numeric value of an expression
+			if (x) {...} // equals to if (x != 0) {...}
+
+	5.2) switch
+		Each case is labeled by one or more integer-valued constants or constant expressions.
+		switch (expression) {
+			case const-expr: statements 
+			case const-expr: statements 
+			default: statements
+		}
+
+	5.3) while for
+		while and for test numeric value of an expression. If it is non-zero, statement is executed and expression is re- evaluated.
+			while (x) {...} // equals to while (x != 0) {...}
+
+	5.4) goto and labels
+		Formally, the goto statement is never necessary, and in practice it is almost always easy to write code without it.
+		Nevertheless, there are a few situations where gotos may find a place. The most common is to abandon processing in some deeply nested structure, such as breaking out of two or more loops at once. The break statement cannot be used directly since it only exits from the innermost loop.
+		for (...) {
+			for (...) {
+				if (disaster)
+					goto error;
+			}
+		}
+		error: ...
+
+		label:
+		A label has the same form as a variable name, and is followed by a colon. It can be attached to any statement in the same function as the goto. The scope of a label is the entire function.
+
+
+6) Pointers
+	A pointer is a group of cells (often two or four) that can hold an address.
+	Every pointer points to a specific data type.
+	Since pointers are variables, they can be used without dereferencing. For example, if iq and ip are pointers to int, then:
+		iq = ip;
+	copies the contents of ip into iq, thus making iq point to whatever ip pointed to.
+
+	6.1) &
+		The unary operator & gives the address of an object, so the statement
+			p = &c; // p contains ADDRESS of c
+		assigns the address of c to the variable p, and p is said to point to c. 
+		It cannot be applied to expressions, constants, or register variables - only objects in memory.
+
+	6.2) *
+		The unary operator * is the indirection or dereferencing operator; when applied to a pointer, it accesses the object the pointer points to.
+			int x = 1, y = 2, z[10];
+			int *ip; // pointer to int
+			ip = &x; // ip now points to x (contains address of x)
+			y = *ip; // y is now 1 (y accessed x via dereferencing pointer ip)
+			*ip = 0; // x is now 0 (x accessed via dereferencing pointer ip)
+			ip = &z[0]; // ip now point to z[0]
+		In examples at some point basically *ip is x so it can be used like this:
+			++*ip;
+			(*ip)++; // in this case parentheses are necessary
+
+	6.3) void *
+		Generic pointer type. Pointer to void is used to hold any type of pointer but cannot be dereferenced itself.
+		Any pointer can be cast to void * and back again without loss of information.
+
+	6.4) Function arguments
+			void swap(int *, int *); // function prototype
+			void func() {
+				swap(&a, &b);
+			}
+			void swap(int *px, int *py) {
+				int temp;
+				temp = *px;
+				*px = *py;
+				*py = temp;
+			}
+		Since the operator & produces the address of a variable, &a is a pointer to a. In swap itself, the parameters are declared as pointers, and the operands are accessed indirectly through them.
+
+		6.4.1) Function arguments with arrays
+				char s[] = "hello";
+				strlen(s);
+				int strlen(char *ps) {
+					// ps is s
+					// *ps is s[0]
+					// ps++ makes ps equals to &s[1] and so on
+				}
+
+		6.4.2) Passing part of an array
+				char s[] = "hello";
+				// passes address of subarray that starts at s[2]
+				func(&s[2]);
+				func(s+2);
+				// function declaration can be either way 
+				func(char arr[]) {...} 
+				func(char *arr) {...}
+			So as far as func is concerned, the fact that the parameter refers to part of a larger array is of no consequence. If one is sure that the elements exist, it is also possible to index backwards in an array; arr[-1], arr[-2], and so on are syntactically legal, and refer to the elements that immediately precede arr[0]. Of course, it is illegal to refer to objects that are not within the array bounds.
+
+	6.5) Pointers and arrays
+			char x[] = {'a', 'b', 'c', 'd', 'e'};
+			char *px;
+			px = &x[0]; // px points to first element
+			*px == 'a'
+			temp = *px; // copies x[0] to temp
+		px+1 points to next element, px+i points to i'th element
+			*(px+1) refers to x[1]
+			*(px+i) refers to x[i]
+		Poiting to other address by incrementing pointer is called pointer arithmetic.
+
+		Variable x is always an address of first element in array. 
+			x is &x[0] 
+		thus we can rewrite 
+			px = &x[0] 
+		as just
+			px = x
+		So x[i] is also *(x+i)
+		And &x[i] is also (x+i)
+		As px is an address x, px[i] is a value at x[i], or *(px+i)
+		NOTE! As px is a variable px = x and px++ is possible, but x = px and x++ is not possible. 
+
+		You can also assign pointer to char array like this:
+			char *pmessage = "string";
+		There is an important difference between these definitions:
+			char amessage[] = "string";
+			char *pmessage = "string";
+		amessage is an array, just big enough to hold the sequence of characters and '\0' that initializes it. Individual characters within the array may be changed but amessage will always refer to the same storage. On the other hand, pmessage is a pointer, initialized to point to a string constant; the pointer may subsequently be modified to point elsewhere, but the result is undefined if you try to modify the string contents.
+
+		Note: in *++p increment happens first, then it fetches the value that incremented p points to. In *p++ it fetches the value that p points to, then increments it.
+			*p++ = val; // push val into stack
+			val = *--p; // pop top of stack into val
+
+	6.6) Pointer arithmetic
+		If p is a pointer to some element of an array, then p++ increments p to point to the next element, and p+=i increments it to point i elements beyond where it currently does. 
+		Note that size of p can be not enough to hold the index value of some large array! See book for more on that.
+		Pointers in SAME array can be compared using ==, <, >, etc. and can be added or subtractd from one another. If the pointers are in different arrays the behavior is undefined.
+		Pointers can also be compared to 0. 0 means invalid address - it's the only integer value the pointer can be.
+		All other pointer arithmetic is illegal.
+
+	6.7) Pointer initialization
+		In general a pointer can be initialized just as any other variable can, though normally the only meaningful values are 0 or an expression involving the address of previously defined data of appropriate type, like:
+			int x[10];
+			int *px = x; // equals to int *px; px = x;
+		0 is never a valid address for data, so a return value of 0 can be used to signal an abnormal event, in this case no space.
+
+	6.8) Pointer arrays
+		Declaration:
+			char *parray[10]; // parray is an array of 10 pointer element
+		Accessing elements:
+			parray[i] // is a char pointer
+			*parray[i] // value of char pointer
+			parray // is a pointer itself, pointing to first element of array of pointers
+			*parray // is also pointer, because it's the first pointer element in array
+		Another example:
+			char *names[] = {"Alice", "Bob", "John"};
+		The characters of the i-th string are placed somewhere, and a pointer to them is stored in names[i]. Since the size of the array names is not specified, the compiler counts the initializers and fills in the correct number.
+		Pointer to array of pointers to arrays (like names in example above):
+		-----------------------------------------------------------
+		pointer arrayOfPointers arraysOfChars(horizontally)
+
+		*x[]	x				*x				*x+1 			*x+2
+				x+1				*(x+1)			*(x+1)+1 		*(x+1)+2
+				x+2				*(x+2)			*(x+2)+1 		*(x+2)+2
+
+		values in those pointers using pointer notation
+
+		x		*x				**x				*(*x+1)			*(*x+2)
+				*(x+1)			**(x+1)			*(*(x+1)+1)		*(*(x+1)+2)
+				*(x+2)			**(x+2)			*(*(x+2)+1)		*(*(x+2)+2)
+
+		values in those pointers using pointer and array notation
+
+		x		x[0]			(*x)[0]			(*x)[1]			(*x)[2]
+				x[1]			(*(x+1))[0]		(*(x+1))[1]		(*(x+1))[2]
+				x[2]			(*(x+2))[0]		(*(x+2))[1]		(*(x+2))[2]
+
+		values in those pointers using double array notation
+
+		x		x[0]			x[0][0]			x[0][1]			x[0][2]
+				x[1]			x[1][0]			x[1][1]			x[1][2]
+				x[2]			x[2][0]			x[2][1]			x[2][2]	
+
+		generic
+
+		*x[]	x+i				*(x+i)+j
+
+		x		*(x+i)			*(*(x+i)+j)
+
+		x		x[i]			(*(x+i))[j]
+
+		x		x[i]			x[i][j]
+		-----------------------------------------------------------
+
+		Difference between multidimentional arrays and pointer arrays:
+		Given the definitions
+			int a[10][20];
+			int *b[10];
+		then a[3][4] and b[3][4] are both syntactically legal references to a single int. But a is a true two-dimensional array: 200 int-sized locations have been set aside, and the conventional rectangular subscript calculation 20*row+col is used to find the element a[row,col]. For b, however, the definition only allocates 10 pointers and does not initialize them; initialization must be done explicitly, either statically or with code. Assuming that each element of b does point to a twenty-element array, then there will be 200 ints set aside, plus ten cells for the pointers. The important advantage of the pointer array is that the rows of the array may be of different lengths. That is, each element of b need not point to a twenty-element vector; some may point to two elements, some to fifty, and some to none at all.
+
+	6.9) Pointers to functions
+		In C, a function itself is not a variable, but it is possible to define pointers to functions, which can be assigned, placed in arrays, passed to functions, returned by functions, and so on.
+		Example of quick sort function which has 4 arguments: array of pointers, two integers and a pointer to function wich itself has 2 generic pointer argument.
+			void qsort(void *v[], int left, int right, int (*comp)(void *, void *));
+		Inside the qsort function comp can be used as follows:
+			(*comp)(v[i], v[j]); // note the parentheses!
+		comp is a pointer to the function, *comp is the function itself.
+
+	6.10) Declarations with pointers, confusing examples
+			int (*x)[10]; // pointers to array[10] of ints
+			int *x[10]; // array[10] of pointers to ints
+			void *func(); // function returning void *
+			void (*func)(); // pointer to function returning void
+			char (*(*func())[])(); // function returning pointer to array[] of pointers to function returning char
+			char (*(*x[3])())[5]; // x is an array[3] of pointers to function returning pointer to array[5] of chars
+
+		See links for more on deciphering declarations:
+		1. http://ieng9.ucsd.edu/~cs30x/rt_lt.rule.html
+		2. http://c-faq.com/decl/spiral.anderson.html
+		3. http://www.codeproject.com/Articles/7042/How-to-interpret-complex-C-C-declarations
+		Or this link for automatic deciphering:
+		1. http://www.cdecl.org/
+
+7) Structures
+	A structure is a collection of one or more variables, possibly of different types, grouped together under a single name for convenient handling. 
+	The only legal operations on a structure are copying it or assigning to it as a unit, taking its address with &, and accessing its members. Copy and assignment include passing arguments to functions and returning values from functions as well. Structures may not be compared.
+	One should be careful with different operators used for structures as their precedence matters a lot! See book for examples. 
+	
+	7.1) Declaration
+			struct point { // keyword -struct- followed by structure tag -point-
+				int x; // structure member x
+				int y;
+			};
+		Structure tag (or name) is optional.
+		A struct declaration defines a type. The right brace that terminates the list of members may be followed by a list of variables, just as for any basic type:
+			struct { ... } x, y, z; // syntactically analogous to int x, y, z;
+		Each statement declares x, y and z to be variables of the named type and causes space to be set aside for them.
+
+		A structure declaration that is not followed by a list of variables reserves no storage; it merely describes a template or shape of a structure. If the declaration is tagged, however, the tag can be used later in definitions of instances of the structure. For example, given the declaration of point:
+			struct point pt1;
+
+	7.2) Initialization
+		A structure can be initialized by following its definition with a list of initializers, each a constant expression, for the members:
+			struct nums = { 320, 200 };
+
+	7.3) Referencing
+		A member of a particular structure is referred to in an expression by a construction of the form structureName.member
+
+	7.4) Nested structures
+			struct rect {
+				struct point pt1;
+				struct point pt2;
+			};
+
+	7.5) Structures and functions
+		Function returning point structure:
+			struct point makept(int x, int y) {...}
+		Structures are passed to functions by value:
+			void initpt(struct point p) { // p here is a local copy of point struct
+				p.x = 1;
+				p.y = 2;
+			}
+			struct point p;
+			initpt(p); 
+			// after this p.x=0 and p.y=0 because p was passed to initpt by value
+		Passing structure pointer to function:
+
+	7.6) Pointers to structures
+			struct point *pp; // pointer to structure of type struct point
+			pp // pointer to structure
+			*pp // structure
+			(*pp).x // x member of structure
+			(*pp).y // y member of structure
+		Using:
+			struct point origin, *pp;
+			pp = &origin;
+			printf("origin is (%d,%d)", (*pp).x, (*pp).y);
+		Pointers to structures are so frequently used that an alternative notation is provided as a shorthand:
+			pp->x // pp is a pointer and x is a member
+		Rewriting example using alternative notation:
+			printf("origin is (%d,%d)", pp->x, pp->y);
+		More examples:
+			struct rect r, *rp = &r;
+			r.pt1.x
+			rp->pt1.x
+		Operators . and -> together with () and [] has very high precedence so for example:
+			struct {
+				int len;
+				char *str;
+			} *p;
+			++p->len
+		increments len, not p.
+			*p->str // fetches what str points to
+
+	7.7) Arrays of structures
+		Array can be declared together with structure definition or separately:
+		   struct key {
+		       char *word;
+		       int count;
+		   } keys[NKEYS];
+		Initialization can also happen right after structure definition:
+			struct key {
+       			char *word;
+       			int count;
+   			} keys[] = {
+       			"auto", 0,
+       			"break", 0,
+       			...
+       		};
+       		// Defining all members of all structures in one row (enclosed in one {}) equals to defining each structure in separate braces as {"auto", 0}
+	
+	7.8) Self-referential structures
+		Sctructures can have pointers to structures of same type is in:
+			struct node {
+				char *name;
+				struct node *left;
+				struct node *right;
+			};
+		Structures however cannot contain an instance of itself like:
+			struct node {
+				...
+				struct node right;
+			}
+		In such case it would be an infinite structure containing same structure, containing same structure, containing same structure and so on.
+
+	7.9) Bit-fields
+		Very special and narrow topic - see book for explanation
+
+8) Unions
+	A union is a variable that may hold (at different times) objects of different types and sizes, with the compiler keeping track of size and alignment requirements. Unions provide a way to manipulate different kinds of data in a single area of storage, without embedding any machine-dependent information in the program.
+	The purpose of a union - a single variable that can legitimately hold any of one of several types. 
+
+	8.1) Declaration
+			union u_tag {
+				int ival;
+				float fval;
+				char *sval;
+			} u;
+		The variable u will be large enough to hold the largest of the three types; the specific size is implementation-dependent.
+		Any of these types may be assigned to u and then used in expressions, so long as the usage is consistent: the type retrieved must be the type most recently stored. It is the programmer's responsibility to keep track of which type is currently stored in a union; the results are implementation-dependent if something is stored as one type and extracted as another.
+
+	8.2) Initialization
+		A union may only be initialized with a value of the type of its first member; thus union u described above can only be initialized with an integer value.
+
+	8.3) Referencing
+		The pattern is the same as for structures:
+			unionName.member
+			unionPointer->member
+
+	8.4) Keeping track of variable type
+		If the variable utype is used to keep track of the current type stored in u, then one might see code such as
+			if (utype == INT) printf("%d\n", u.ival);
+			if (utype == FLOAT) printf("%f\n", u.fval);
+			if (utype == STRING) printf("%s\n", u.sval);
+			else printf("bad type %d in utype\n", utype);
+
+	8.5) Unions and structures and arrays
+		Unions may occur within structures and arrays, and vice versa. The notation for accessing a member of a union in a structure (or vice versa) is identical to that for nested structures.
+			struct {
+				char *name;
+				int flags;
+				int utype;
+				union {
+					int ival;
+					float fval;
+					char *sval;
+				} u;
+			} symtab[NSYM];
+		Referencing will be done as follows:
+			symtab[i].u.ival // member ival
+			*symtab[i].u.sval // first character of string sval
+			symtab[i].u.sval[0] // first character of string sval
+
+9) Other operators
+
+	9.1) sizeof
+		C provides a compile-time unary operator called sizeof that can be used to compute the size of any object.
+		Pattern:
+		sizeof object
+		sizeof (type name)
+		returns an integer equal to the size of the specified object or type in bytes. sizeof produces an unsigned integer value whose type, size_t, is defined in the header <stddef.h>.
+			int x;
+			char *y[10];
+			sizeof (x) // size of particular variable - 4 on my mac
+			sizeof (int) // size of type int - 4 on my mac
+			sizeof (struct point) // size of struct type point - 8 on my mac
+			sizeof (char *) // size of char pointer - 8 on my mac
+			sizeof (y) // size of array of pointers - 80 on my mac
+		An object can be a variable or array or structure. A type name can be the name of a basic type like int or double, or a derived type like a structure or a pointer.
+			#define NKEYS (sizeof keys / sizeof(struct key))
+			#define NKEYS (sizeof keys / sizeof(keys[0]))
+			// both examples work the same way, but second one is not dependent on type of array keys
+
+		Note: A sizeof can not be used in a #if line, because the preprocessor does not parse type names. But the expression in the #define is not evaluated by the preprocessor, so its use is legal.
+
+		The size of a structure is the sum of the sizes of its members. Because of alignment requirements for different objects, there may be unnamed ``holes'' in a structure. Thus, for instance, if a char is one byte and an int four bytes, the structure
+			struct {
+				char c;
+				int i; 
+			};
+		might well require eight bytes, not five.
+
+	9.2) typedef
+		C provides a facility called typedef for creating new data type names. 
+		Make "String" synonym for char *:
+			typedef char *String;
+		Now we can use it:
+			String s = "Hello, world";
+		Another example:
+			typedef struct data {
+				int id;
+				String name;
+			} Data;
+			typedef Data *Dataptr;
+			Data d;
+			d.id = 1;
+			Dataptr pd = &d;
+			pd->id = 2;
+		typedef is like #define, except that since it is interpreted by the compiler, it can cope with textual substitutions that are beyond the capabilities of the preprocessor. Example:
+			typedef int (*PFI)(char *, char *); // pointer to function (of two char * arguments) returning int
+			PFI strcmp, numcmp;
+		Besides purely aesthetic issues, there is an another reason for using typedefs. It is to parameterize a program against portability problems. If typedefs are used for data types that may be machine-dependent, only the typedefs need change when the program is moved. One common situation is to use typedef names for various integer quantities, then make an appropriate set of choices of short, int, and long for each host machine. Types like size_t and ptrdiff_t from the standard library are examples.
+
+

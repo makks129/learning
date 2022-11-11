@@ -1,0 +1,72 @@
+1-4 Discrete Probability
+
+Discrete probability over Universe U (finite set)
+U = {0,1}^n --- has 2^n elements
+e.g. {0,1}^2 = {00, 01, 10, 11}
+
+Probability distribution P over U is a function P: U -> [0,1] --- can be from 0 to 1
+∑P(x) = 1 --- sum of weights of all Ps = 1
+
+Probability distributions:
+1. Uniform: for all xєU: P(x) = 1/|U| --- for all elements x in U, dist P is the same (|U| means size of U)
+2. Point: P(x0) = 1, foreach x≠x0: P(x) = 0
+3. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

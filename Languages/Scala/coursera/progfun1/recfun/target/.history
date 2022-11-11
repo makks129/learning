@@ -1,0 +1,9 @@
+test
+compile
+test
+sbt submit strelnikov.maxim@gmail.com mn4MXRXFUOQYjZ3t
+sbt submit mn4MXRXFUOQYjZ3t strelnikov.maxim@gmail.com
+submit strelnikov.maxim@gmail.com mn4MXRXFUOQYjZ3t
+quit
+help
+exit

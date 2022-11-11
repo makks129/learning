@@ -1,0 +1,977 @@
+Objective-C
+***********
+
+See also:
+GCD
+KVC
+
+
+
+1) Preprocessor
+	
+	1.1) #import
+		Whenever the interface is defined in a header file, you’ll need to tell the compiler to read it before trying to compile the implementation in the source code file. Objective-C provides a preprocessor directive, #import, for this purpose. It’s similar to the C #include directive, but makes sure that a file is only included once during compilation.
+			#import "XYZPerson.h"
+			@implementation XYZPerson
+			...
+			@end
+
+
+2) Classes
+
+	1.1) Inheritance
+		Objective-C defines a root class from which the vast majority of other classes inherit, called NSObject.	
+		When you’re defining your own classes, you should at a minimum inherit from NSObject. 
+			@interface XYZSimpleClass : NSObject
+
+	2.2) Public access
+
+		2.2.1) Class interface
+			Interface for a class is placed in header file with extension .h
+			Class interface specifies exactly how a given type of object is intended to be used by other objects. In other words, it defines the public interface between instances of the class and the outside world.
+				@interface XYZSimpleClass : NSObject
+				...
+				@end
+			The name of each class must be unique within an app, even across included libraries or frameworks. If you attempt to create a new class with the same name as an existing class in a project, you’ll receive a compiler error. Prefix the names of any classes you define, using three or more letters. 
+
+			With Objective-C 2.0+ an interface should only declare public properties and public methods (no instance variables should be declared here, see "Properties and variables" section for more).
+
+	2.3) Private access
+
+		2.3.1) Class implementation
+			Implementation of a class is place in source code file with extension .m
+			If you declare any methods in the class interface, you’ll need to implement them inside this file.
+				#import "XYZPerson.h" // need to include header file using #import
+				@implementation XYZPerson
+				...
+				@end
+
+		2.3.2) Private variables and methods
+			To declare private ivars either class extension or class implementation should be used as follows:
+				@interface XYZPerson () {
+					NSString *privateString;
+				}
+				@end
+				@implementation XYZPerson {
+					NSString *privateString;
+				}
+				- (void)privateMethod {...} // if not declared in header
+				@end
+			Private methods are just methods in an implementation that are not declared in header.
+
+	2.4) Protected access
+		
+		2.4.1) Class extension
+			Properties and methods declared in class extension are hidden from public usage but can be accessed in subclasses.
+				@interface XYZPerson ()
+				@property NSString *protectedString;
+				- (void)protectedMethod;
+				@end
+
+		2.4.2) @protected directive
+			Private ivars declared in class extension or implementation can be made protected using @protected modified before them:
+				@interface XYZPerson () {
+					@protected
+					NSString *protectedString;
+				}
+				@end
+
+		2.4.3) Protected category
+			You can also create a separate category with protected properties, ivars and methods and import it only tin subclasses - that way this API will be hidden from public but can be accessed in subclasses.
+			See more: http://rypress.com/tutorials/objective-c/categories.html
+
+	2.5) Classes as objects
+		Class is itself an object with an opaque type called Class.
+		Classes can’t have properties defined using the declaration syntax shown earlier for instances, but they can use methods.
+		The typical use for a class method is as a factory method, which is an alternative to the object allocation and initialization procedure:
+			+ (id)string;
+			+ (id)stringWithString:(NSString *)aString;
+			+ (id)stringWithFormat:(NSString *)format, ...;
+			// Examples from NSString class
+		Using self in class methods refers to the class inself, not the instance of the class, so the following in class XYZPerson is possible:
+			+ (id)person {
+				[[self alloc] init];
+			}
+
+	2.6) Creating an object
+		
+		2.6.1) Allocation:
+			The first step in creating an object is to make sure enough memory is allocated not only for the properties defined by an object’s class, but also the properties defined on each of the superclasses in its inheritance chain.
+			The NSObject root class provides a class method, alloc, which handles this process for you. The alloc method has one other important task, which is to clear out the memory allocated for the object’s properties by setting them to zero. 
+
+		2.6.2) Initialization:
+			The init method (i.e. constructor) is used by a class to make sure its properties have suitable initial values at creation
+				NSObject *newObject = [[NSObject alloc] init];
+			Other init methods (i.e. constructors) can be provided by the class:
+				NSNumber *newNumber = [[NSNumber alloc] initWithInt:42];
+
+			2.6.2.1) init methods
+				An init method should assign self to the result of calling the superclass’s initialization method before doing its own initialization. A superclass may fail to initialize the object correctly and return nil so you should always check to make sure self is not nil before performing your own initialization.
+					- (id)init {
+	    				self = [super init];
+	    				if (self) {
+	        				// initialize instance variables here
+						}
+	    				return self;
+					}
+
+			2.6.2.2) Designated initializer
+				Often it's an init method with most arguments. Other init methods may just call the designated initializer with defaults for some of the arguments.
+				Subclasses of such class can either override superclass's designated initializer or add own additional initializer. 
+
+		2.6.3) Factory methods:
+			As mentioned in the previous chapter, a class can also define factory methods. Factory methods offer an alternative to the traditional alloc] init] process, without the need to nest two methods.
+				NSNumber *newNumber = [NSNumber numberWithInt:42];
+			In factory methods it's better to use self, which here refers to class, not instance, rather than explicitly stating the class:
+				@implementation XYZPerson
+				+ (id)person {
+					[[XYZPerson alloc] init]; // option 1
+					[[self alloc] init]; // option 2: this is better, because in subclass of XYZPerson you won't need to override this method to use alloc-init on the correct class - it will be used automatically
+				}
+
+		2.6.4) New keyword
+			It’s also possible to create an instance of a class using the new class method. This method is provided by NSObject and doesn’t need to be overridden in your own subclasses. It’s effectively the same as calling alloc and init with no arguments.
+				NSObject *newObject = [NSObject new];
+
+		2.6.5) Literal syntax
+			NSString class allows to use literals:
+				NSString *string = @"Stub";
+			This is effectively the same as allocating and initializing an NSString or using one of its class factory methods:
+ 				NSString *string = [NSString stringWithCString:"Hello, World!" encoding:NSUTF8StringEncoding];
+ 			The NSNumber class also allows a variety of literals:
+ 				NSNumber *myInt = @42;
+ 				NSNumber *myLong = @42L;
+ 				NSNumber *myFloat = @3.14f;
+ 				NSNumber *myBOOL = @YES;
+ 			Objective-C also supports literals to create immutable NSArray and NSDictionary objects:
+ 				// TODO
+
+ 	2.7) Comparing objects
+	 	Test values equality is simple:
+	 		if (someInteger == 42) {...} // used to test equalite of values of 2 variables
+	 	Test whether 2 separate pointers point to same object:
+	 		if (someObject == otherObject) {...}
+	 	Test whether 2 objects represent same data:
+	 		if ([someObject isEqual:otherObject]) {...}
+	 	Test whether date1 represents greater/lesser/equal value than date2:
+	 		if ([date1 compare:date2] == NSOrderedDescending) {...} // is date1 >
+	 		if ([date1 compare:date2] == NSOrderedAscending) {...} // is date1 <
+	 		if ([date1 compare:date2] == NSOrderedSame) {...} // is date1 ==
+	 	Test object pointer for nil:
+	 		if (someObject != nil) {...} // does someObject point to something
+	 		if (someObject) {...} // same as previous
+	 		if (someObject == nil) {...} // does someObject point to nothing
+	 		if (!someObject) {...} // same as previous
+
+7) Categories
+	Category files will be called ClassName+CategoryName.h/m
+
+	7.1) Interface declaration
+		Pattern: 
+			@interface ClassName (CategoryName) // no inheritance, just specify category
+		Example:
+			@interface XYZPerson (XYZPersonNameDisplayAdditions)
+			- (NSString *)lastNameFirstNameString; // adding method to display lastName+firstName to the original XYZPerson class, but using category
+			@end
+
+	7.2) Implementation
+		Pattern:
+			@implementation XYZPerson (XYZPersonNameDisplayAdditions)
+		Example:
+			@implementation XYZPerson (XYZPersonNameDisplayAdditions)
+			- (NSString *)lastNameFirstNameString {
+				return [NSString stringWithFormat:@"%@, %@", self.lastName, self.firstName];
+			}
+			@end
+
+	7.3) Why use
+		Easily add functionality to any existing class:
+			If you need to add a method to an existing class, perhaps to add functionality to make it easier to do something in your own application, the easiest way is to use a category.
+			A category can be declared for any class, even if you don’t have the original implementation source code (such as for standard Cocoa or Cocoa Touch classes). Any methods that you declare in a category will be available to all instances of the original class, as well as any subclasses of the original class. At runtime, there’s no difference between a method added by a category and one that is implemented by the original class.
+		Split implementation:
+			As well as just adding methods to existing classes, you can also use categories to split the implementation of a complex class across multiple source code files. 
+
+	7.4) Constraints
+		No properties:
+			Categories can be used to declare either instance methods or class methods but are not usually suitable for declaring additional properties. It’s valid syntax to include a property declaration in a category interface, but it’s not possible to declare an additional instance variable in a category. This means the compiler won’t synthesize any instance variable, nor will it synthesize any property accessor methods. You can write your own accessor methods in the category implementation, but you won’t be able to keep track of a value for that property unless it’s already stored by the original class.
+			The only way to add a traditional property—backed by a new instance variable—to an existing class is to use a class extension.
+		Method names:
+			Because the methods declared in a category are added to an existing class, you need to be very careful about method names.
+			If the name of a method declared in a category is the same as a method in the original class, or a method in another category on the same class (or even a superclass), the behavior is undefined as to which method implementation is used at runtime. This is less likely to be an issue if you’re using categories with your own classes, but can cause problems when using categories to add methods to standard Cocoa or Cocoa Touch classes.
+			In order to avoid undefined behavior, it’s best practice to add a prefix to method names in categories on framework classes, just like you should add a prefix to the names of your own classes.
+
+8) Extensions
+
+	8.1) Declaration
+		The methods declared by a class extension are implemented in the @implementation block for the original class so you can’t, for example, declare a class extension on a framework class, such as a Cocoa or Cocoa Touch class like NSString.
+		Pattern:
+			@interface ClassName ()
+		Example:
+			@interface XYZPerson ()
+			@property NSObject *extraProperty;
+			@end
+		Unlike regular categories, a class extension can add its own properties and instance variables to a class. The compiler will automatically synthesize the relevant accessor methods, as well as an instance variable, inside the primary class implementation.
+		If you add any methods in a class extension, these must be implemented in the primary implementation for the class.
+		It’s also possible to use a class extension to add custom instance variables. 
+
+	8.2) Why use
+		Hide private information, create formal private API:
+			Class extensions are often used to extend the public interface with additional private methods or properties for use within the implementation of the class itself. 
+		Redefine public API properties:
+			It’s common, for example, to define a property as readonly in the interface, but as readwrite in a class extension declared above the implementation, in order that the internal methods of the class can change the property value directly.
+				@interface XYZPerson : NSObject // main interface
+				@property (readonly) NSString *uniqueId; // readonly property for public use
+				@end
+				@interface XYZPerson () // class extension
+				@property (readwrite) NSString *uniqueId; // property redefined as readwrite to be able to set it internally
+				@end
+			Even though you can always set value for readonly property internally by using property's ivar, you will not able to set it using default or dot notation.
+				@property (readonly) NSString *uniqueId; // in main interface, no extension
+				_uniqueId = 777; // possible
+				self.uniqueId = 777; // compiler error
+
+9) Protocols
+
+	9.1) Definition
+		Pattern:
+			@protocol ProtocolName
+			...
+			@end
+		Protocols can include declarations for both instance methods and class methods, as well as properties.
+		Example:
+  			@protocol XYZPieChartViewDataSource // read the note in section below about not inheriting <NSObject> protocol
+			- (NSUInteger)numberOfSegments;
+			- (CGFloat)sizeOfSegmentAtIndex:(NSUInteger)segmentIndex;
+			- (NSString *)titleForSegmentAtIndex:(NSUInteger)segmentIndex;
+			@end
+
+			9.1.1) @required
+				By default, all methods declared in a protocol are required methods. This means that any class that conforms to the protocol must implement those methods.
+				To indicate that methods below are required use @required directive:
+					@required
+					- (NSString *)titleForSegmentAtIndex:(NSUInteger)segmentIndex;
+					// In this case titles are required, this method must be implemented by dataSource
+
+			9.1.2) @optional
+				To indicate that methods below are optional use @optional directive:
+					@optional
+					- (NSString *)titleForSegmentAtIndex:(NSUInteger)segmentIndex;
+					// In this case titles are optional, if not provided by dataSource, they won't be shown
+				If a method in a protocol is marked as optional, you must check whether an object implements that method before attempting to call it.
+					if ([self.dataSource respondsToSelector:@selector(optionalMethod:)]) {
+        				[self.dataSource optionalMethod];
+					}
+				Note:
+				If you attempt to call the respondsToSelector: method on an id conforming to the protocol as it’s defined above, you’ll get a compiler error that there’s no known instance method for it. Once you qualify an id with a protocol, all static type-checking comes back; you’ll get an error if you try to call any method that isn’t defined in the specified protocol. One way to avoid the compiler error is to set the custom protocol to adopt the NSObject protocol.
+
+	9.2) Conforming to protocol
+		Class:
+			@interface SomeClass : NSObject <SomeProtocol>
+			@interface SomeClass : NSObject <SomeProtocol, SomeOtherProtocol>
+
+		Property:
+			@property id <SomeProtocol> propertyThatConforms;
+			@property id <SomeProtocol, SomeOtherProtocol> propertyThatConformsToBoth;
+		By specifying the required protocol conformance on the property, you’ll get a compiler warning if you attempt to set the property to an object that doesn’t conform to the protocol, even though the basic property class type is generic. 
+
+	9.3) Protocol inheritance
+		As an example, it’s best practice to define your protocols to conform to the NSObject protocol (some of the NSObject behavior is split from its class interface into a separate protocol; the NSObject class adopts the NSObject protocol).
+		By indicating that your own protocol conforms to the NSObject protocol, you’re indicating that any object that adopts the custom protocol will also provide implementations for each of the NSObject protocol methods.
+		Because you’re presumably using some subclass of NSObject, you don’t need to worry about providing your own implementations for these NSObject methods. 
+		Pattern:
+			@protocol SubProtocol <SuperProtocol>
+
+	9.4) Reasons for using protocols
+		- Data source:
+			As described above protocols are used to describe the questions the data source must answer in order to provide info to some object.
+		- Delegation:
+			Similar to data source but is more about providing custom behavior when dealing with user interactions or customizing the display of certain entries.
+		- Indication of non-hierarchical similarities
+		- Anonymous classes
+			Protocols can be used to hide class name used and reveal only part of its functionality via protocol.
+			See example in tutorial.
+
+		...
+
+
+3) Properties and variables
+
+	3.1) Declaration
+		Property declarations are included in the interface for a class.
+			@interface XYZPerson : NSObject
+			@property NSString *name; // Obj-C objects are C pointers
+			@property int yearOfBirth;
+			@end
+
+	3.2) Attributes
+		readwrite -- synthesize getter and setter methods (this one is set by default)
+		readonly -- setter method will not be synthesized by compiler
+			@property (readonly) NSString *name;
+		getter -- pattern: getter=name, set custom getter method name
+			@property (getter=isFinished) BOOL *finished;
+		setter -- pattern: setter=name:, set custom setter method name
+			@property (getter=setIsFinished:) BOOL *finished; // note the ":"
+		atomic -- see desctiprion below (this one is set by default)
+		nonatomic -- see desctiprion below
+		strong -- see desctiprion below (this one is set by default)
+		weak -- see desctiprion below
+		unsafe_unretained -- see descruption below
+		copy - see descruption below
+		assign // TODO
+		retain // TODO
+		...
+
+			3.2.1) atomic/nonatomic
+				atomic -- synthesized accessors ensure that a value is always fully retrieved by the getter method or fully set via the setter method, even if the accessors are called simultaneously from different threads. Because the internal implementation and synchronization of atomic accessor methods is private, it’s not possible to combine a synthesized accessor with an accessor method that you implement yourself. You’ll get a compiler warning if you try, for example, to provide a custom setter for an atomic, readwrite property but leave the compiler to synthesize the getter.
+					@property NSObject *object; // atomic by default
+					@property (atomic) NSObject *object; // explicitly state atomic
+				nonatomic -- specify that synthesized accessors simply set or return a value directly, with no guarantees about what happens if that same value is accessed simultaneously from different threads. For this reason, it’s faster to access a nonatomic property than an atomic one, and it’s fine to combine a synthesized setter, for example, with your own getter implementation
+					@property (nonatomic) NSObject *object; // state nonatomic
+				NOTE: Property atomicity is not synonymous with an object’s thread safety. See tutorial for more.
+
+			3.2.2) strong/weak
+				strong -- keeps strong reference to object in memory
+				weak -- keeps weak reference to object in memory
+
+				Local variables (and non-property instance variables) also maintain strong references to objects by default. A variable maintains a strong reference to an object only as long as that variable is in scope, or until it is reassigned to another object or nil.
+				If you don’t want a variable to maintain a strong reference, you can declare it as __weak, like this:
+					NSObject *__weak weakVariable;
+					__weak NSObject *weakVariable; // both examples possible
+				Weak reference is automatically set to nil when its object is deallocated.
+
+				NOTE: See "Strong reference cycles" problem in tutorial.
+				NOTE: See caching of weak objects in local strong variables in tutorial.
+				Links on strong/weak references:
+					http://stackoverflow.com/questions/20030873/always-pass-weak-reference-of-self-into-block-in-arc
+
+			3.2.3) unsafe_unretained
+				There are a few classes in Cocoa and Cocoa Touch that don’t yet support weak references, which means you can’t declare a weak property or weak local variable to keep track of them. An unsafe reference is similar to a weak reference in that it doesn’t keep its related object alive, but it won’t be set to nil if the destination object is deallocated. This means that you’ll be left with a dangling pointer to the memory originally occupied by the now deallocated object, hence the term “unsafe.” Sending a message to a dangling pointer will result in a crash.
+					@property (unsafe_unretained) NSObject *unsafeProperty;
+					NSObject *__unsafe_unretained unsafeReference;
+					__unsafe_unretained NSObject *unsafeReference; // both examples possible
+
+			3.2.4) copy
+				Tells the object property to keep the copy (save by value) of the value set via setter.
+				In the examaple below there is an NSString property name of some object. Later NSMutableString (subclass of NSString) is set for the name.
+				Property name now holds a copy to this mutable string, so changing the mutable string itself doesn't change the value saved in name property.
+					@property (copy) NSString *name;
+					NSMutableString *mutableName = [NSMutableString stringWithString:@"John"];
+					object.name = mutableName;
+					[mutableName appendString:@"ny"];
+
+				If you need to set a copy property’s instance variable directly, for example in an initializer method, don’t forget to set a copy of the original object:￼
+					- (id)initWithSomeOriginalString:(NSString *)aString {
+					    self = [super init];
+					    if (self) {
+					        _instanceVariableForCopyProperty = [aString copy]; // copy!
+					    }
+					    return self;
+					}
+
+				Note: Any object that you wish to set for a copy property must support NSCopying, which means that it should conform to the NSCopying protocol.
+				Note: the copy attribute means that the property will use a strong reference, because it must hold on to the new object it creates.
+
+
+
+
+	3.3) Accessing properties from outside
+		You access or set an object’s properties via get and set methods.
+		By default, these accessor methods are synthesized automatically for you by the compiler, so you don’t need to do anything other than declare the property using @property in the class interface.
+
+		3.3.1) Default syntax
+			Naming convention by default:
+			property - firstName
+			getter - firstName
+			setter - setFirstName
+				NSString *firstName = [somePerson firstName];
+				[somePerson setFirstName:@"John"];
+
+		3.3.2) Dot syntax
+			As well as making explicit accessor method calls, Objective-C offers an alternative dot syntax to access an object’s properties:
+				NSString *firstName = somePerson.firstName;
+				somePerson.firstName = @"Johnny";
+			When you use dot syntax, the property is still accessed or changed using the getter and setter methods.
+
+	3.4) Accessing properties from inside
+		Although it’s best practice for an object to access its own properties using accessor methods or dot syntax, it’s possible to access the instance variable directly from any of the instance methods in a class implementation.
+		The compiler will automatically synthesize an instance variable in all situations where it’s also synthesizing at least one accessor method.
+
+		3.4.1) Default syntax
+			To use default syntax inside own implementation use self:
+				NSString *name = [self firstName];
+				[self firstName:@"John"];
+
+		3.4.2) Dot syntax
+			To use dot syntax inside own implementation use self:
+				NSString *name = self.firstName;
+				self.firstName = @"John";
+
+		3.4.3) Accessing instance variable directly
+			For every property declared in the interface the system allocates an instance variable for the life of an object. The name of those variables by default are _propertyName.
+				@property NSString *name; // inside interface
+				_name = @"John"; // somewhere inside implementation
+			NOTE: In the init methods inside implementation always access instance variables directly!
+				- (id)initWithName:(NSString *)name {
+					...
+					_name = name; // not self.name = name !
+					...
+				}
+
+			3.4.3.1) Custom instance variable name
+				If you wish to use a different name for the instance variable, you need to direct the compiler to synthesize the variable using the following syntax in your implementation.
+				Pattern: @synthesize propertyName = instanceVariableName;
+					@synthesize firstName = ivar_firstName;
+				In this case, the property will still be called firstName, and be accessible through firstName and setFirstName: accessor methods or dot syntax, but it will be backed by an instance variable called ivar_firstName.
+				If you use @synthesize without specifying an instance variable name,like this:
+					@synthesize firstName;
+				the instance variable will bear the same name as the property (without _).
+
+	3.5) Custom getter/setter
+		The compiler will automatically synthesize an instance variable in all situations where it’s also synthesizing at least one accessor method. If you implement both a getter and a setter for a readwrite property, or a getter for a readonly property, the compiler will assume that you are taking control over the property implementation and won’t synthesize an instance variable automatically.
+		If you still need an instance variable, you can request it using:
+			@synthesize property = _property;
+
+		Override the property getter/setter by naming convention:
+			@property XYZObject *someObject; // in interface
+			@synthesize someObject = _someObject; // in implementation
+			- (XYZObject *)someObject { // overriding getter
+				...
+				return _someObject;
+			}
+			- (void)setSomeObject:(XYZObject *)object { // overriding setter
+				...
+				_someObject = object;
+			}
+
+		Example: lazy initialization
+			- (XYZObject *)someObject {
+				if (!_someObject) {
+					_someObject = [[XYZObject alloc] init];
+				}
+				return _someObject;
+			}
+
+	3.6) Instance variables without properties
+		If you do need to define your own instance variables without declaring a property, you can add them inside braces at the top of the class interface or implementation:
+			@interface XYZPerson: NSObject {
+				NSString *_interfaceIvar; // shouldn't do like that in Objective-C 2.0+
+			}
+			@end
+			@interface XYZPerson () {
+				NSString *_extensionIvar;
+			}
+			@end
+			@implementation SomeClass {
+     			 NSString *_implementationIvar;
+			}
+			@end
+		NOTE: With Objective-C 2.0 you no longer need to declare ivars in the @interface. Ivars are private implementation details and need to be declared either in class extension or implementation!
+		See details: 
+		http://stackoverflow.com/questions/3040811/why-are-objective-c-instance-variables-declared-in-an-interface
+		http://stackoverflow.com/questions/10407848/is-this-a-new-way-to-define-private-instance-variables-in-objective-c
+
+	3.7) Properties without instance variables
+		Sometimes you don't need an ivar for the property, for example:
+			@property (readonly) NSString *fullName;
+			- (NSString *)fullName {
+    			return [NSString stringWithFormat:@"%@ %@", self.firstName, self.lastName];
+			}
+		In this case the property is readonly, and accessor method is redefined, so the compiler won't create _fullName ivar automatically.
+
+	3.8) Local variables
+
+		3.8.1) Declaration and initialization of scalar variables
+			It’s a good idea to initialize scalar variables at the time you declare them, otherwise their initial values will contain garbage from the previous stack contents.
+				BOOL success = NO;
+				int magicNumber = 42;
+
+		3.8.2) Declaration and initialization of object pointers
+			The compiler will automatically set the variable to nil if you don’t specify any other initial value:
+				XYZPerson *somePerson; // somePerson is nil
+
+4) Methods
+
+	4.1) Declaration
+			- (void)someMethod;
+	
+	4.2) Static, non-static
+		- or + are used to declare methods as static or non-static
+			- (void)nonStaticMethod;
+			+ (void)staticMethod;
+
+	4.3) Parameters
+		Methods can take values or objects:
+			- (void)someMethodWithValue:(SomeType)value;
+			- (void)someMethodWithValue:(SomeType)value1 andOtherValue(AnotherType)value2;
+			- (void)someMethodWithString:(NSString *)str;
+		value1 and value2 value names used above aren’t strictly part of the method declaration, which means it’s not necessary to use exactly the same value names in the declaration as you do in the implementation. 
+
+		Undefined amout of arguments (as in print format methods) are declared as follows:
+			+ (id)stringWithFormat:(NSString *)format, ...;
+
+	4.4) Implementation
+		- (void)someMethod {
+			NSLog(@"Stub"); // similar to C printf
+		}
+
+	4.5) Calling methods
+		Of other objects:
+			[someObject someMethod];
+		Of same object:
+			- (void)sayHello {
+				[self saySomething:@"Hello"];
+			}
+		Of super object:
+			- (void)sayHello { // defined in subclass
+				[self wave];
+				[super sayHello];
+			}
+		Nested calls:
+			[[someObject someMethod] someOtherMethod];
+
+	4.6) Returning values and objects
+		Specifying return value: 
+			- (void)doSomething;
+			- (int)getNumber;
+			- (NSString *)getName;
+		Getting return value:
+			int num = [someObject getNumber];
+			NSString *name = [someObject getName];
+
+	4.7) Sending messages inside an object
+		Keyword self is used t send messages to same object:
+			- (void)sayHello {
+				[self saySomething:@"Hello"];
+			}
+	4.8)
+
+5) Types and special classes
+
+	5.1) Runtime type detection
+		You need to use a pointer to keep track of an object in memory. Because of Objective-C’s dynamic nature, it doesn’t matter what specific class type you use for that pointer — the correct method will always be called on the relevant object when you send it a message.
+			id someObject = @"Hello, World!";
+			[someObject removeAllObjects];
+		In this case, someObject will point to an NSString instance, but the compiler knows nothing about that instance beyond the fact that it’s some kind of object. The removeAllObjects message is defined by some Cocoa or Cocoa Touch objects (such as NSMutableArray) so the compiler doesn’t complain, even though this code would generate an exception at runtime because an NSString object can’t respond to removeAllObjects.
+		Rewriting the code to use a static type:
+			NSString *someObject = @"Hello, World!";
+			[someObject removeAllObjects];
+		means that the compiler will now generate an error because removeAllObjects is not declared in any public NSString interface that it knows about.
+
+			XYZPerson *firstPerson = [[XYZPerson alloc] init];
+			XYZPerson *secondPerson = [[XYZShoutingPerson alloc] init];
+			[firstPerson sayHello];
+			[secondPerson sayHello];
+		Although both firstPerson and secondPerson are statically typed as XYZPerson objects, secondPerson will point, at runtime , to an XYZShoutingPerson object. When the sayHello method is called on each object, the correct implementations will be used; for secondPerson, this means the XYZShoutingPerson version.
+
+	5.2) id
+		This is a special keyword used in Objective-C to mean “some kind of object.” It is a pointer to an object, like (NSObject *), but is special in that it doesn’t use an asterisk.
+
+	5.3) nil
+		Declared objects that are not initialized yet are given the value nil:
+			XYZPerson *somePerson; // somePerson is nil
+		A nil value is the safest way to initialize an object pointer if you don’t have another value to use, because it’s perfectly acceptable in Objective-C to send a message to nil. If you do send a message to nil, obviously nothing happens.
+		If you expect a return value from a message sent to nil,the return value will be nil for object return types, 0 for numeric types, and NO for BOOL types. Returned structures have all members initialized to zero.
+		Checking object for nil:
+			if (somePerson != nil) {...}
+	 		if (somePerson) {...} // same as previous
+		If the somePerson variable is nil, its logical value is 0 (false). If it has an address, it’s not zero, so evaluates as true.
+		If somePerson == nil (or just !somePerson) - it means that pointer doesn't point to an object.
+
+		5.3.1) NSNull
+			It’s not possible to add nil to the Foundation collection classes because nil in Objective-C means “no object.” If you need to represent “no object” in a collection, you can use the NSNull class.
+				NSArray *array = @[@"string", @42, [NSNull null]];
+			NSNull is a singleton class, which means that the null method will always return the same instance. This means that you can check whether an object in an array is equal to the shared NSNull instance:
+				if (object == [NSNull null]) {
+					NSLog(@"Found a null object");
+				}
+
+		5.3.2) NULL
+			// TODO
+
+	5.4) BOOL
+		 YES is logically equivalent to true and 1
+		 NO is logically equivalent to false and 0
+
+	5.5) Foundation (NS...)
+
+		5.5.1) Foundation scalar values and wrappers
+			E.g. NSNumber, NSInteger, NSUInteger, etc.
+			It’s best practice to use these platform-specific types if you might be passing values across API boundaries (both internal and exported APIs), such as arguments or return values in method or function calls between your application code and a framework.
+
+		5.5.2) Foundation collection classes
+
+			5.5.2.1) nil-termination
+				nil-termination is used for creation of some collections.
+				Be careful not to truncate the array unintentionally like this:
+					id firstObject = @"someString";
+					id secondObject = nil;
+					id thirdObject = @"anotherString";
+					NSArray *someArray = [NSArray arrayWithObjects:firstObject, secondObject, thirdObject, nil]; // array will have only firstObject!
+
+			5.5.2.2) @-syntax
+				You should not terminate the list of objects with nil when using this literal syntax, and in fact nil is an invalid value. You’ll get an exception at runtime if you try to execute the following code, for example:
+					id firstObject = @"someString";
+					id secondObject = nil;
+					NSArray *someArray = @[firstObject, secondObject]; // exception: "attempt to insert nil object"
+				If you do need to represent a nil value in one of the collection classes, you should use the NSNull singleton class.
+				NSDictionary creation using @-syntax:
+					NSDictionary *dictionary = @{
+						@"key_one" : someObject,
+						@"key_two" : otherObject
+					};
+
+			5.5.2.3) Subscripting syntax
+				Subscripting syntax in arrays:
+					There’s also a subscript syntax alternative to using objectAtIndex
+						NSArray *someArray = ...
+						someArray[0] = ...
+				Subscripting syntax in dictionaries:
+					There’s also a subscript syntax alternative to using objectForKey
+						NSDictionary *someDictionary = ...
+						NSNumber *storedNumber = someDictionary[@"key_one"];
+
+			5.5.2.4) Sorting
+				The NSArray class also offers a variety of methods to sort its collected objects. Because NSArray is immutable, each of these methods returns a new array containing the items in the sorted order.
+					NSArray *sortedStrings = [unsortedStrings sortedArrayUsingSelector:@selector(compare:)];
+				If using NSMutableArray it’s possible to sort a mutable array in place, without creating a secondary array:
+					￼[mutableArray sortUsingSelector:@selector(compare:)];
+
+			5.5.2.5) Enumeration
+
+				5.5.2.5.1) C loop
+						for (int i = 0; i < [array count]; i++) {...}
+
+				5.5.2.5.2) Fast enumeration
+					Many collection classes conform to the NSFastEnumeration protocol, including NSArray, NSSet and NSDictionary. This means that you can use fast enumeration, an Objective-C language-level feature.
+					Pattern:
+						for (<Type> <variable> in <collection>) {...}
+					Examples (array and dictionary):
+						for (id item in array) {
+							NSLog(@"Object: %@", item);
+						}
+						for (NSString *key in dictionary) {
+							NSLog(@"Object: %@ for key: %@", dictionary[key], key);
+						}
+					NOTE: You cannot mutate a collection during fast enumeration, even if the collection is mutable. If you attempt to add or remove a collected object from within the loop, you’ll generate a runtime exception.
+
+				5.5.2.5.3) Enumerator
+					You can ask an NSArray, for example, for an objectEnumerator or a reverseObjectEnumerator. It’s possible to use these objects with fast enumeration, like this:
+						for (id object in [array reverseObjectEnumerator]) {...}
+					It’s also possible to iterate through the contents by calling the enumerator’s nextObject method repeatedly, like this:
+						id object;
+						while ((object = [enumerator nextObject])) {...}
+					Using enumerator manually is slower than using fast enumeration.
+
+
+			5.5.2.6) Writing/reading collections to/from file
+				See tutorial section "Use Collections to Persist Your Object Graph"
+
+		5.5.3) Archiver
+			If you need to persist other types of objects than just the standard property list classes, you can use an archiver object, such as NSKeyedArchiver, to create an archive of the collected objects.
+			The only requirement to create an archive is that each object must support the NSCoding protocol. This means that each object must know how to encode itself to an archive (by implementing the encodeWithCoder: method) and decode itself when read from an existing archive (the initWithCoder: method).
+
+	5.7) CG...
+		Data types such as CGFloat, CGPoint, etc. are just typedefs of scalar types.
+		This is done to match platform-dependent types.
+
+10) Other directives 
+
+	10.1) @selector
+		Selector refers to the identifier for a method after compilation. You can provide the correct identifier by using the @selector() directive and specifying the name of the method.
+		Pattern:
+			@selector(methodWithNoParams)
+			@selector(methodWithOneParam:)
+			@selector(methodWithFirstParam:secondParam:)
+
+	10.2) @encode
+		The @encode() compiler directive is used to create the correct Objective-C type.
+		Pattern:
+			@encode(type)
+		Example:
+			struct CustomStruct {...} aStruct;
+			NSValue *structValue = [NSValue value:&aStruct withObjCType:@encode(CustomStruct)];
+
+11) Blocks
+	Blocks are a language-level feature added to C, Objective-C and C++, which allow you to create distinct segments of code that can be passed around to methods or functions as if they were values. Blocks are Objective-C objects, which means they can be added to collections like NSArray or NSDictionary. They also have the ability to capture values from the enclosing scope, making them similar to closures or lambdas in other programming languages.
+	It’s common to pass blocks to functions or methods for invocation elsewhere. You might use Grand Central Dispatch to invoke a block in the background, for example, or define a block to represent a task to be invoked repeatedly, such as when enumerating a collection. Blocks are also used for callbacks, defining the code to be executed when a task completes.
+	Use typedefs to define your custom reusable block signatures!
+
+	11.1) Decralation, initialization, invokation
+		Declaration:
+		In the same way that you can use a function pointer to refer to a C function, youcan declare a variable to keep track of a block, like this:
+			// block variable simpleBlock, representing block with no args, no return value
+			void (^simpleBlock)(void);
+			// block variable multiplyTwoValues, representing block with two double args, returning double
+			double (^multiplyTwoValues)(double, double);
+
+		Initialization:
+			simpleBlock = ^{
+				NSLog(@"stub");
+			};
+			multiplyTwoValues = ^double(double first, double second) {
+				return first * second;
+			}
+			// return type double is not necessary to state, it can be ommited
+
+		Combining declaration and initialization:
+			void (^simpleBlock)(void) = ^{
+				NSLog(@"stub");
+			};
+			double (^multiplyTwoValues)(double, double) = ^double(double first, double second) {
+				return first * second;
+			}
+			// return type double is not necessary to state, it can be ommited
+
+		Invokation:
+			simpleBlock();
+			double result = multiplyTwoValues(2.3, 4.5);
+		Note: invokation of unassigned block variable will crash the app.
+
+	11.2) Closures
+		Blocks capture values of external variables used within a block.
+			int externalVar = 42;
+			void (^closureBlock)(void) = ^{
+				NSLog(@"%i", externalVar);
+			}
+			externalVar += 100;
+			closureBlock(); // prints "42"
+		Value of externalVar is captured by the block and so when the block is invoked, the value of externalVar inside it is 42.
+		externalVar is captured as const variable.
+
+		If you need to be able to change the value of a captured variable from within a block, you can use the __block storage type modifier on the original variable declaration. This means that the variable lives in storage that is shared between the lexical scope of the original variable and any blocks declared within that scope.
+			__block int externalVar = 42;
+			void (^closureBlock)(void) = ^{
+				externalVar += 100;
+				NSLog(@"%i", externalVar);
+			}
+			externalVar += 100;
+			closureBlock(); // prints "242"
+
+	11.3) Blocks as function arguments
+		Example:
+			- (void)beginTaskWithCallbackBlock:(void (^)(void))callback;
+			- (void)doSomethingWithBlock:(double (^)(double, double))block;
+		The (void (^)(void)) specifies that the parameter is a block that doesn’t take any arguments or return any values.
+		Then block can be invoked as usual:
+			callback();
+			double result = block(2.3, 4.5);
+		It’s best practice to use only one block argument to a method. If the method also needs other non-block arguments, the block should come last
+
+	11.4) Complex blocks definitions
+		The complexBlock variable refers to a block that takes another block as an argument (aBlock) and returns yet another block:
+			void (^(^complexBlock)(void (^)(void)))(void) = ^ (void (^aBlock)(void)) {
+				...
+				return ^{...};
+			};
+		Use typedefs to simplify such constructions:
+			typedef void (^XYZSimpleBlock)(void);
+			XYZSimpleBlock (^betterBlock)(XYZSimpleBlock) = ^ (XYZSimpleBlock aBlock) {
+				...
+				return ^{...};
+			};
+
+	11.5) Blocks as properties
+			@property (copy) void (^blockProperty)(void);
+		You should specify copy as the property attribute, because a block needs to be copied to keep track of its captured state outside of the original scope. This isn’t something you need to worry about when using Automatic Reference Counting, as it will happen automatically, but it’s best practice for the property attribute to show the resultant behavior.
+
+	11.6) Strong reference cycle problem
+		Blocks maintain strong references to any captured objects, including self, which means that it’s easy to end up with a strong reference cycle if, for example, an object maintains a copy property for a block that captures self:
+			@property (copy) void (^block)(void);
+			self.block = ^{
+				[self doSomething];
+			};
+		To avoid this problem, it’s best practice to capture a weak reference to self, like this:
+			__weak XYZExampleClass *weakSelf = self;
+    		self.block = ^{
+    			[weakSelf doSomething];
+			};
+		By capturing the weak pointer to self, the block won’t maintain a strong relationship back to the XYZBlockKeeper object. If that object is deallocated before the block is called, the weakSelf pointer will simply be set to nil.
+
+	11.7) Blocks as callbacks
+		Delegation can be used for callbacks, but using blocks is simpler. In terms of code readability, the block makes it easy to see in one place exactly what will happen before and after the task completes, avoiding the need to trace through delegate methods to find out what’s going to happen.
+		Example:
+			[self showProgressIndicator];
+			[someAsyncTask beginTaskWithCallbackBloc: ^{
+				[self hideProgressIndicator];
+			}];
+
+	11.8) Blocks for enumeration
+		In addition to general completion handlers, many Cocoa and Cocoa Touch API use blocks to simplify common tasks, such as collection enumeration.
+		Example:
+			NSArray *array = ...
+			[array enumerateObjectsUsingBlock:^ (id obj, NSUInteger idx, BOOL *stop) {
+    			NSLog(@"Object at index %lu is %@", idx, obj);
+    			if (...) {
+    				*stop = YES;
+    			}
+			}];
+		The third argument is a pointer to a Boolean variable that you can use to stop the enumeration.
+		It’s also possible to customize the enumeration by using the enumerateObjectsWithOptions:usingBlock: method
+			[array enumerateObjectsWithOptions:NSEnumerationConcurrent usingBlock: ...
+		Options: NSEnumerationConcurrent, NSEnumerationReverse, etc.
+		There are also enumeration-with-block methods in other collection classes.
+
+	11.9) Blocks for concurrency
+		See "Concurrency" section.
+
+6) Memory mgmt
+	For basic knowledge on variable lifecycle see "Properties and variables" section
+
+	6.1) autoreleasepool
+		When you’re writing a Cocoa or Cocoa Touch application rather than a command line tool, you won’t usually need to worry about creating your own autorelease pools, because you’re tying into a framework of objects that will ensure one is already in place.
+
+	6.2) strong reference cycle
+		See tutorial
+
+	6.2) weak reference cycle
+			@interface XYZPerson : NSObject
+			@property (weak, nonatomic) XYZPerson *partner;
+			@end
+
+			@implementation XYZPerson
+			- (void)setPartner:(XYZPerson *)partner {
+			    if (!_partner) {
+			        _partner = partner;
+			        partner.partner = self;
+			    }
+			}
+			@end
+
+			// in main()
+			XYZPerson *john = [XYZPerson person];
+			XYZPerson *alice = [XYZPerson person];
+			john.partner = alice;
+			NSLog(@"John's partner is %@", john.partner); // ... Alice
+			NSLog(@"Alice's partner is %@", alice.partner); // ... John
+			john = nil; // here john may or may not be deallocated
+			NSLog(@"John's partner is %@", john.partner); // ... (null)
+			NSLog(@"Alice's partner is %@", alice.partner); // ... ???
+		When 2 objects have weak reference cycle, removing strong reference to one of them will at some point deallocate it, removing strong references to both will at some point deallocate both.
+
+12) Concurrency
+	OS X and iOS offer a variety of technologies for concurrency, including two task-scheduling mechanisms: Operation queues and Grand Central Dispatch. These mechanisms revolve around the idea of a queue of tasks waiting to be invoked. You add your blocks to a queue in the order you need them to be invoked, and the system dequeues them for invocation when processor time and resources become available.
+	A serial queue only allows one task to execute at a time—the next task in the queue won’t be dequeued and invoked until the previous task has finished. A concurrent queue invokes as many tasks as it can, without waiting for previous tasks to finish.
+
+	12.1) Operation queues
+		An operation queue is the Cocoa and Cocoa Touch approach to task scheduling. You create an NSOperation instance to encapsulate a unit of work along with any necessary data, then add that operation to an NSOperationQueue for execution.
+		Although you can create your own custom NSOperation subclass to implement complex tasks, it’s also possible to use the NSBlockOperation to create an operation using a block. It's also possible to create you own queues.
+			NSBlockOperation *operation = [NSBlockOperation blockOperationWithBlock:^{...}];
+			NSOperationQueue *mainQueue = [NSOperationQueue mainQueue];
+			[mainQueue addOperation:operation]; // schedule on main queue
+			NSOperationQueue *backgroundQueue = [[NSOperationQueue alloc] init];
+			[backgroundQueue addOperation:operation]; // schedule on background queue
+		If you use an operation queue, you can configure priorities or dependencies between operations, such as specifying that one operation should not be executed until a group of other operations has completed. You can also monitor changes to the state of your operations through key-value observing, which makes it easy to update a progress indicator, for example, when a task completes.
+
+	12.2) Grand Central Dispatch
+		If you need to schedule an arbitrary block of code for execution, you can work directly with dispatch queues controlled by Grand Central Dispatch (GCD). Dispatch queues make it easy to perform tasks either synchronously or asynchronously with respect to the caller, and execute their tasks in a first-in, first-out order.
+		You can either create your own dispatch queue or use one of the queues provided automatically by GCD. If you need to schedule a task for concurrent execution, for example, you can get a reference to an existing queue by using the dispatch_get_global_queue() function and specifying a queue priority, like this:
+			dispatch_queue_t queue = dispatch_get_global_queue DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+		To dispatch the block to the queue, you use either the dispatch_async() or dispatch_sync() functions.
+			dispatch_async(queue, ^{...});
+
+13) Error handling
+	When you’re writing code with Objective-C, exceptions are used solely for programmer errors, like out-of-bounds array access or invalid method arguments. These are the problems that you should find and fix during testing before you ship your app. All other errors are represented by instances of the NSError class.
+
+	13.1) NSError
+
+		13.1.1) Working with framework methods
+
+			13.1.1.1) NSError as argument in protocol method passed by delegeta
+				Many framework classes' protocols include an error-related method, which is called by the delegate is case error occures. This methods provide an NSError object to describe the problem.
+				Rather than making the requirement that every possible error have a unique numeric code, errors are divided into domains. If an error occurs in an NSURLConnection, for example, the connection:didFailWithError: method above will provide an error from NSURLErrorDomain.
+					- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error;
+
+			13.1.1.2) NSError as argument is method invokation
+				Passing pointer to error as a method argument.
+				If an error occurs, the writeToURL:... method will return NO, and update your anyError pointer to point to an error object describing the problem.
+					NSError *anyError;
+					BOOL success = [data writeToURL:someLocalFileURL options:0 error:&anyError];
+					if (!success) {
+						// handle error
+					}
+				If you’re not interested in the error object, just pass NULL for the error: parameter.
+
+		13.1.2) Generating own errors
+			See tutorial section "Generating Your Own Errors".
+
+	13.2) Exception handling
+		Try-catch-finally blocks look as follows:
+			@try {
+			}
+			@catch (NSException *exception) { // note the stupid place of ")"
+			}
+			@finally {
+			}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

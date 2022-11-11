@@ -1,0 +1,6 @@
+Books
+1) https://www.quora.com/What-would-be-best-site-book-tutorial-for-a-Scala-beginner
+
+Tutorials
+1) http://docs.scala-lang.org/tutorials/scala-for-java-programmers.html
+2) https://learnxinyminutes.com/docs/scala/

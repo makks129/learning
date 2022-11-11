@@ -1,0 +1,1558 @@
+**********************************************************************
+REPL
+**********************************************************************
+
+1) cd ProjectDir
+2) sbt
+3) console
+
+:paste - paste mode
+
+**********************************************************************
+LEGEND
+**********************************************************************
+
+Henceforth: 
+>>> - console input
+
+
+**********************************************************************
+0. Syntactic sugar
+**********************************************************************
+
+val _ = 1 // _ means value or variable name when it's not needed
+case _: MalformedURLException => print("Bad URL")
+
+a method b <--> a.method(b)
+
+1.toString <--> 1.toString() // parameterless methods w/o parentheses
+
+"foobar"(3) <--> "foobar".apply(3) // 'b' // ommiting apply method call
+BigInt("123") <--> BigInt.apply("123") // no need to use new keyword
+Array(1,2,3) <--> Array.apply(1,2,3)
+
+val res = if (x>0) 1 else -1 <--> if (x>0) res=1 else res=-1 // in second case res needs to be declared beforehand so it's a var
+val res = if (x>0) 1 <--> val res = if (x>0) else () // where () is of class Unit
+
+val x = { 			// init val in several lines
+	val dx = x-x0
+	val dy = y-y0
+	sqrt(dx*dx+dy*dy) // x will be inited with result of this last expression
+}
+
+for { i <- 1 to 3	<-->	for (i <- 1 to 3; from = 4 - i; j <- from to 3)
+	from = 4 - i
+	j <- from to 3}
+
+a.filter(_ % 2 == 0).map(_ * 2)  <-->  a filter {_ % 2 == 0} map {_ * 2}
+
+Map(("foo", 1), ("bar", 2))  <-->  Map("foo" -> 1, "bar" -> 2) 
+
+class X {
+	def accessor = ... <--> def accessor() = ...
+}
+val x = new X
+x.accessor <--> x.accessor()
+// can use both, but good practice is to use accessors without () and it can be enforced by declaring accessor without ()
+
+**********************************************************************
+1.2. Values and Variables
+**********************************************************************
+
+val x = 1 // immutable
+var x = 1 // mutable
+val x = "Hello" // not inferring type
+val x: String = "Hello" // explicitly inferring type
+val x: String = null
+val x, y = 1
+val x, y: Int = 1
+
+**********************************************************************
+1.3 Types
+**********************************************************************
+
+Byte, Char, Short, Int, Long, Float, Double, Boolean // are classes, no primitive types. also are immutable
+StringOps, RichInt, RichDouble, RichChar, etc. // default classes with more functionality
+BigInt, BigDecimal // for big stuff
+
+Unit // void type, aka "no useful value", written as (). Unit has one value that signifies "no value"
+
+1.toString() // "1"
+1.to(10) // Range(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+
+**********************************************************************
+1.4 Operators
+**********************************************************************
+
++ - * / % & | ^ >> <<  // operators are methods
+++ -- operators DO NOT EXIST, use +=1 -=1
+
+a + b // short for a.+(b)
+
+**********************************************************************
+2.1 Conditional Expressions
+**********************************************************************
+
+val res = if (x>0) 1 else -1 // if-else statement has a value! res is either 1 or -1
+val res = if (x>0) "one" else -1 // one branch is String other is Int so res is of type Any
+val res = if (x>0) 1 // res is either 1 or ()
+
+**********************************************************************
+2.4 I/O
+**********************************************************************
+
+Output:
+print, println, printf
+Input:
+readInt, readDouble, readByte, readShort, readLong, readFloat, readBoolean, readChar
+readLine // can take prompt string as an arg
+
+**********************************************************************
+2.5 Loops
+**********************************************************************
+
+As in Java: while, do loops 
+No direct analog of for loop, only for statement
+No break, continue statements (for break see scala.util.control.Breaks)
+
+// to method from RichInt
+// i <- expr is a generator and means traverse i
+for (i <- 1 to n) {...} 
+
+// until method from RichInt, until goes to length-1
+for (i <- 0 until "foobar".length) {...}
+
+// expr can also be string
+var sum = 0
+for (ch <- "foobar") sum += ch
+
+// expr can also be array
+var a = Array(1,2,3)
+for (elem <- a) ... // foreach analog
+
+// More examples:
+for (ch <- 0 until (s.length, 2)) ... // traverse every second char in string
+for (ch <- (0 until s.length).reverse) ... // traverse string in reverse
+
+//
+// Advanced
+//
+
+// multiple generators
+for (i <- 1 to 3; j <- 1 to 3) 
+	print((10 * i + j) + " ") // 11 12 13 21 22 23 31 32 33
+
+// generators can have if guards
+for (i <- 1 to 3; j <- 1 to 3 if i != j)
+	print((10 * i + j) + " ") // 12 13 21 23 31 32
+
+// definitions
+for (i <- 1 to 3; from = 4 - i; j <- from to 3)
+	print((10 * i + j) + " ") // 13 22 23 31 32 33
+
+// yield creates collection of values, one for each iteration
+// this is called for comprehension
+for (i <- 1 to 10) yield i % 3 // Vector(1, 2, 0, 1, 2, 0, 1, 2, 0, 1)
+
+// generated collection is compatible with the first generator
+for (c <- "Hello"; i <- 0 to 1) yield (c + i).toChar // "HIeflmlmop"
+for (i <- 0 to 1; c <- "Hello") yield (c + i).toChar // Vector ('H','e','l','l','o','I','f','m','m','p')
+
+// generators, guards and definitions can be written in braces with newlines
+for { i <- 1 to 3
+	from = 4 - i
+	j <- from to 3}
+
+**********************************************************************
+2.7 Functions
+**********************************************************************
+
+Method operates on object, whereas function is like a static method in Java.
+
+// types of all params must be specified
+// return type may not be specified, as long as not recursive
+// return type determined automatically by expr to the right of =
+def abs(x: Double) = if (x >= 0) x else -x
+
+// with block
+def fac(n: Int) = {
+	var r = 1
+	for (i <-1 to n) r = r * i
+	r 	// type of this is returned
+}
+
+// Note: can use return to exit function immediately, though not commonly used.
+// return is more like a break statement for functions
+
+// specifying return type in recursive function
+def fac(n: Int): Int = if (n <= 0) 1 else n * fac(n - 1)
+
+**********************************************************************
+2.8 Default and Named Arguments
+**********************************************************************
+
+// default arg values for functions
+def decorate(str: String, left: String = "[", right: String = "]") = left + str + right
+decorate("foo") // "[foo]"
+decorate("foo", "<<<", ">>>") // "<<<foo>>>"
+decorate("foo", "<<<[") // "<<<[foo]"
+
+// specifying param names, in this case their order does not matter
+decorate(left = "<<<", str = "foo", right = ">>>") // "<<<foo>>>"
+
+// mixing named and unnamed params
+decorate("foo", right = "]<<<") // same as decorate("foo", "[", "]<<<")
+
+**********************************************************************
+2.9 Variable Arguments
+**********************************************************************
+
+def sum(args: Int*) = {
+	var res = 0
+	for (arg <- args) res += arg
+	res
+}
+sum(1,2,3,4) // Correct. Args are a sequence
+sum(1 to 4) // Incorrect. Args are Range
+sum(1 to 4: _*) // Correct. 1 to 4 is treated as a sequence
+
+// : _* in recursion
+def recursiveSum(args: Int*): Int = {
+	if (args.length == 0) 0
+	else args.head + recursiveSum(args.tail : _*) // head - first element, tail - seq of rest
+}
+
+**********************************************************************
+2.10 Procedures
+**********************************************************************
+
+// Procedure is a function that returns no value (return type is Unit). Used for side effects
+def printInSquareBrackets(s: String) {	// Note: no = 
+	print("[" + s + "]")
+}
+
+**********************************************************************
+2.11 Lazy Values
+**********************************************************************
+
+// lazy val initialization is deferred until it is accessed for the first time
+>>> lazy val words = scala.io.Source.fromFile("/usr/share/dict/words").mkString
+words: String = <lazy>
+>>> words
+res0: String = "..."
+>>> lazy val words = scala.io.Source.fromFile("/usr/share/dict/wrds").mkString // typo
+words: String = <lazy>
+>>> words
+java.io.FileNotFoundException: /usr/share/dict/wrds
+
+// NOTE: lazy is halfway between val and def
+// val: evaluation when defined
+val words = scala.io.Source.fromFile("/usr/share/dict/words").mkString
+// lazy val: evaluation when used first time
+lazy val words = scala.io.Source.fromFile("/usr/share/dict/words").mkString
+// def: evaluation on every usage
+def words = scala.io.Source.fromFile("/usr/share/dict/words").mkString
+
+**********************************************************************
+2.12 Exceptions
+**********************************************************************
+
+// throw
+throw new IllegalArgumentException("x should not be negative")
+
+// java.lang.Throwable - superclass
+// There are no checked exceptions (never have to declare exception in function or method)
+
+// throw type is Nothing, it takes type from other branch
+// in this example if-else has type Double
+if (x >= 0) sqrt(x) else throw new IllegalArgumentException("x should not be negative")
+
+// try-catch
+try {
+	// smth
+} catch {
+	case e: Exception => e.printStackTrace()
+	// there can be more cases
+}
+
+// try-finally
+try { ... } finally { ... }
+
+// try-catch-finally
+try { ... } catch { ... } finally { ... }
+
+**********************************************************************
+3.1 Arrays
+**********************************************************************
+
+// Use Array if fixed length
+val a = new Array[Int](10)
+val strs = Array("foo", "bar") // no new keyword when supplying initial values
+// Use ArrayBuffer if variable length
+val b = ArrayBuffer[Int]()	// or new ArrayBuffer[Int]
+// 2D arrays
+val 2dArray = new Array[Array[Int]](10)
+val 2dArray = Array.ofDim[Int](3, 4) // 3 rows, 4 col
+
+// Accessing
+strs(0) // "foo"
+2dArray(0)(1) // row 0, col 1
+
+// Modifying
+b += 1
+b += (2, 3, 4)
+b ++= Array(5, 6, 7) // ++= appends collection
+b.trimEnd(5) // remove last 5 elements
+b.insert(2, 6) // at location index 2 insert value 6
+b.insert(2, 6, 7, 8) // at location index 2 insert values 6, 7, 8
+b.remove(2) // at location index 2 delete an element
+b.remove(2, 3) // starting at location index 2 delete 3 elements
+
+// Converting
+b.toArray // convert ArrayBuffer to Array
+a.toBuffer // convert Array to ArrayBuffer
+
+// Traversing
+for (i <- 0 until a.length) ... // traverse Array
+for (elem <- a) ... // foreach analog
+
+// Transforming
+// returns same type as original collection, Array in this case
+val a = Array(1, 2, 3, 4)
+val result = for (elem <- a) yield elem * 2 // Array(2, 4, 6, 8)
+val result = for (elem <- a if elem % 2 == 0) yield elem * 2 // Array(4, 8)
+// same can be achieved without loops
+a.filter(_ % 2 == 0).map(_ * 2)
+
+// Build-in functions
+Array(1,2,3).sum // 6
+Array("x", "xxx", "xx").max // "xxx"
+
+// Sorting
+Array(5,7,3).sorted(_<_) // Array(3,5,7) // returns new array
+Array(5,7,3).sortWith(_<_) // same but sortWith accepts a function
+val a = Array(5,7,3)
+scala.util.Sorting.quickSort(a) // sort Array in place (not ArrayBuffer!)
+
+// Note: min, max, quickSort methods require element comparison operation (Ordered trait)
+
+// Printing
+a.mkString(" and ") // "3 and 5 and 7"
+a.mkString("<",",",">") // "<3,5,7>"
+
+// Interoperating with Java
+import scala.collection.JavaConversions.bufferAsJavaList
+import scala.collection.mutable.ArrayBuffer
+val command = ArrayBuffer("ls", "-lm")
+val pb = new ProcessBuilder(command) // Scala to Java
+import scala.collection.JavaConversions.asScalaBuffer
+import scala.collection.mutable.Buffer
+val cmd: Buffer[String] = pb.command() // Java to Scala
+cmd == command // wrapped and unwrapped objects are the same
+
+**********************************************************************
+4.1 Maps
+**********************************************************************
+
+val m = Map("foo" -> 1, "bar" -> 2) // immutable Map
+val m = scala.collection.mutable.Map("foo" -> 1, "bar" -> 2) // mutable Map
+val m = new scala.collection.mutable.HashMap[String, Int] // empty mutable map
+val m = scala.collection.immutable.SortedMap("foo" -> 1, "bar" -> 2) // immutable tree map
+val m = scala.collection.mutable.LinkedHashMap("foo" -> 1, "bar" -> 2) // mutable map with keys in insertion order
+
+// Pairs
+("foo", 1)  /*or*/  "foo" -> 1 // is a pair of type (String, Int)
+
+// Accessing
+val v = m("foo")	// if no value for this key, exception is thrown
+val v = if (m contains "foo") m("foo") else 0	// value or 0
+val v = m getOrElse ("foo", 0)	// value or 0 shortcut
+val v = m get "foo" // returns Option object, that is either Some(value) or None
+
+// Modifying
+m("foo") = 10 // modify existing value
+m("zyx") = 10 // add new value
+m += ("bcg" -> 3, "hjk" -> 4) // add multiple values
+m -= "foo" // remove key and value
+// new map from immutable map with "foo" value updated and "psd" pair added
+val m2 = immutableMap + ("foo" -> 10, "psd" -> 2)
+val m2 = immutableMap - "foo" // new map from immutable map with "foo" removed
+
+// Iterating
+for ((k, v) <- map) ... // iterate over key-value pairs
+for (k <- m.keySet) ... // iterate over key set
+for (v <- m.values) ... // iterate over values list
+
+// Interoperating with Java
+import scala.collection.JavaConversions.mapAsScalaMap
+val m: scala.collection.mutable.Map[String, Int] = new java.util.TreeMap[String, Int]
+import scala.collection.JavaConversions.mapAsJavaMap
+val m: Map[String, Int] = Map("foo" -> 1, "bar" -> 2)
+method(m) // method expects Java map
+
+**********************************************************************
+4.2 Tuples
+**********************************************************************
+
+// Tuple - aggregator of values of different types. Pair is the simplest tuple
+
+val t = (1, 3.14, "foo") // is of type Tuple3[Int, Double, String] or (Int, Double, String)
+
+// Accessing
+val first = t._1 // first == 1 // method _1 accesses first component of tuple
+val (first, second, third) = t // first == 1, second == 3.14, third == "foo"
+val (first, second, _) = t // first == 1, second == 3.14
+
+// Example
+"Foo Bar".partition(_.isUpper) // (String, String) = ("FB", "oo ar")
+
+// Zipping
+val symbols = Array("<", "-", ">")
+val counts = Array(2, 4, 2)
+val pairs = symbols zip counts // Array(("<", 2), ("-", 4), (">", 2))
+for ((s, c) <- pairs) print(s * c) // "<<---->>"
+
+// Converting
+val m = pairs.toMap // scala.collection.immutable.Map("<" -> 2, "-" -> 4, ">" -> 2)
+
+**********************************************************************
+5.1 Classes
+**********************************************************************
+
+// Declare
+class Counter {
+	private var value = 0 // field must be initialized
+	def increment() { value += 1} // methods are public by default
+	def current() = value // or def current = value to enforce usage without ()
+}
+// Note: Scala sourse file can contain multiplee classes and they all have public visibility
+
+// Construct
+// Note: classes have primary constructor and can also have auxiliary constructors
+
+// Primary constructor
+class Person2(name: String, var height: Int, private var age: Int = 0) { // with primary constructor
+	println("Person2 constructed!")
+}
+// Params can be declared in 4 ways: 1) without var/val, 2) with var/val, 3) with scope keywords, 4) with default values
+// 1) How params are processes depends on usage. E.g. if such param is used inside a method is becomes a field, otherwise it's just a param which is accessible in primary constructor's code
+// 2) Regulart params declaration - params are turned into fields
+// 3) Scope keywords (private, etc.) can also be added, like to regular fields
+// 4) Default values are also possible inside the declaration
+// All statements in class definition (like println here) are executed automatically on primary constructor execution. This way fields or other stuff can be configured on construction
+// Note: to make primary constructor private put the keyword like this:
+class Person private(val id: Int) {...}
+
+// Auxiliary constructors
+class Person { // no primary constructor, default one with no args is generated
+	private var name = ""
+	private var age = 0
+
+	println("Person constructed!")
+
+	def this(name: String) { // auxiliary constructor 1
+		this()
+		this.name = name
+	}
+	def this(name: String, age: Int) { // auxiliary constructor 2
+		this(name)
+		this.age = age
+	}
+}
+
+// Early definition block (EDB)
+class Person extends {
+	// code here runs before construction sequence
+} with Human {
+	/* class body */
+}
+
+// Create and use
+val myCounter = new Counter // or new Counter()
+myCounter.increment()
+print(myCounter.current)
+// Note: use x.mutator() for mutators and x.accessor for accessors 
+val person1 = new Person
+val person2 = new Person("John")
+val person3 = new Person("John", 42)
+
+**********************************************************************
+5.2 Class properties
+**********************************************************************
+
+// Declare properties
+class Person {
+	var age = 0					 // 1) public var
+	private var height = 0		 // 2) private var
+	private var score = 0		 // 3) private var with publicly available accessor
+	def currentScore = score
+	val sex = 0					 // 4) public val
+	private[this] var value1 = 0 // 5) object-private var with access restriction to current object
+	private[ClassName] var value2 = 0 // 6) object-private var with access restriction to some class
+	@BeanProperty var name: String = _ // 7) bean-property
+	protected val protField = 0  // 8) protected val
+}
+// 1) property is public, getter/setter generated automatically (age and age_=)
+// 2) property is private, private getter/setter generated automatically
+// 3) even though it's private we can create publicly available accessor
+// 4) only a getter is generated
+// 5)property is object-private and access is restricted to current object only, no getter/setter is generated at all
+// 6) property is object-private and access is restricted to some class only
+// 7) bean-property gets 4 methods generated: name, name_=(), getName(), setName()
+// 8) protected fields work the same way as in Java. protected[this] variant can also be used
+
+// Redefine properties
+class Person {
+	private var personAge = 0
+	def age = personAge
+	def age_=(newAge: Int) {
+		if (newAge > personAge) personAge = newAge
+	}
+}
+
+// Bean properties
+import scala.reflect.BeanProperty
+class Person {
+	@BeanProperty var name: String = _
+}
+
+**********************************************************************
+5.3 Nested classes
+**********************************************************************
+
+// Declare
+class Network {
+	class Member(val name: String) {
+	}
+	val members1 = new ArrayBuffer[Member]
+	val members2 = new ArrayBuffer[Network#Member]
+}
+val n1 = new Network
+val n2 = new Network
+// Note: n1.Member and n2.Member are different classes! 
+// n1 and n2 have their own classes Member, just like own fields members
+// If you don't want this, there are 2 solutions:
+// 1) use companion object (place class Member inside object Network)
+// 2) use type projection (Network#Member - see val members2)
+
+// Reference outer class
+Network.this 				// first approach
+class Network { outer =>	// second approach; variable outer references Network.this
+	...
+}
+
+**********************************************************************
+6.1 Objects - Singletons
+**********************************************************************
+
+// Objects are a way to create Java-static-like behaviour
+// Objects are used as singletons
+// Objects cannot provide constructor params
+
+// Declare
+object Account {
+	private var lastNum = 0
+	def newUniqueNum = { lastNum += 1; lastNum }
+}
+
+// Declare - companion object
+// Note: class and companion object must be in same source file
+// Note: class and companion object can access each other's private features
+class Account {
+	val id = Account.newUniqueNum()
+	private var balance = 0.0
+}
+object Account { /*see above*/ }
+
+// Construct
+// Constructor is executed when object is first used
+
+// Use
+val num = Account.newUniqueNum()
+
+**********************************************************************
+6.2 Objects - Extending Class or Trait
+**********************************************************************
+
+// Objects can extend classes and/or one/more traits
+
+// Declare
+abstract class UndoableAction(val desc: String) {
+	def undo()
+	def redo()
+}
+object DoNothingAction extends UndoableAction("Do nothing") {
+	override def undo() {}
+	override def redo() {}
+}
+
+**********************************************************************
+6.2 Objects - apply method
+**********************************************************************
+
+// apply method returns object of companion class in a form Object(args...)
+// can overload multiple apply methods
+
+// NOTE! it's easy to confuse:
+new Array(100) // calls this(100) constructor, result - Array[Nothing] with 100 null elements
+Array(100) // calls apply(100) object method, result - Array[Int] with single element 100
+
+// Declare
+class Person {
+	def this(name: String, surname: String) { ... }
+	def this(name: String, surname: String, age: Int) { ... }
+}
+object Person {
+	def apply(name: String, surname: String) = new Person(name, surname)
+	def apply(name: String, surname: String, age: Int) = new Person(name, surname, age)
+}
+class Account private (val id: Int, balance: Double) {
+	...
+}
+object Account {
+	def apply(balance: Double) = new Account(newUniqueNum(), balance)
+}
+
+// Use
+val acc = Account(100.0)
+
+**********************************************************************
+6.2 Objects - Enumerations
+**********************************************************************
+
+// Declare
+object Color extends Enumeration {	// extend Enumeration class
+	val Red, Yellow, Green = Value // init values with Value method call
+}
+object Color extends Enumeration {
+	val Red = Value(0, "Stop")	// with id and name
+	val Yellow = Value(10)  	// with id and name (when not specified equals field name)
+	val Green = Value("Go")		// with name, id is assigned automatically incrementing previous
+}
+
+// Use
+Color.Red
+Color.Red.id // returns id
+Color.Red.toString // returns name
+Color.values // returns set of all values
+Color(0) // look up value by id - returns Color.Red
+Color.withName("Red") // look up value by name - returns Color.Red
+
+// Type
+// Note: type of enumeration is Color.Value, not just Color
+// Though type alias can be used:
+object Color extends Enumeration {
+	type Color = Value
+	val Red, Yellow, Green = Value
+}
+// now type of enumeration is Color.Color
+
+**********************************************************************
+7.1 Packages and Imports
+**********************************************************************
+
+// See Chapter 7
+
+**********************************************************************
+8.1 Inheritance
+**********************************************************************
+
+//
+// General
+//
+// Subclass a class using extends keyword
+// Use final keyword to block overriding of class, method or field(!)
+// Scala class can extend Java class
+
+//
+// Override methods
+//
+// override keyword must be used when overriding not abstract method
+// superclass method invocation is the same as in Java - with super keyword
+
+//
+// Type check and cast
+//
+x.isInstanceOf[ClassName]		 // type check; if x is null - returns false
+x.asInstanceOf[ClassName]		 // cast; if x is null - returns null
+x.getClass == classOf[ClassName] // class check - check if x is a ClassName object and not subclass
+// Pattern matching can also be used in cases when type checking is needed
+
+//
+// Declare primary constructor
+//
+// Only subclass's primary constructor can call superclass's primary constructor, as follows:
+class Employee (name: String, age: Int, val salary: Double) extends Person(name, age) {
+	...
+}
+// Unlike Java in Scala constructors you cannot call super(params) to call superclass constructor
+
+//
+// Override fields
+//
+class Person(val name: String) {
+	override def toString = getClass.getName + ", " + name
+}
+class SecretAgent(val codeName: String) extends Person(codeName) {
+	override val name = "secret"
+	override val toString = "secret"
+}
+// More common case is to override abstract def with val, as follows:
+abstract class Person {
+	def id: Int
+}
+class Student(override val id: Int) extends Person { // id is simply provided in constructor
+	...
+}
+// Rules:
+// def can override def
+// val can override val, or parameterless def
+// var can override abstract var
+
+//
+// Anonymous subclasses
+//
+val alien = new Person("Alf") {
+	def greeting = "Greetings, humans!"
+}
+// This creates an object of type Person{def greeting: String}, which can be used as follows:
+def meet(p: Person{def greeting: String}) {
+	print(p.name + " says" + p.greeting)
+}
+
+//
+// Abstract classes - methods
+//
+abstract class Person(val name: String) {
+	def id: Int // no method body means it's an abstract method
+}
+class Employee(name: String) extends Person(name) {
+	def id = name.hashCode // override keyword not required when overriding abstract methods
+}
+
+//
+// Abstract classes - fields
+//
+abstract class Person {
+	val id: Int 		// val with no initializer means it's an abstract field with an abstract getter
+	var name: string 	// var - same, but with abstract getter and setter
+}
+class Employee(val id: Int) extends Person { // class has concrete id property; no override keyword
+	var name = "" // class has concrete name property; no override keyword
+}
+val alf = new Person { // anonymous class that implements abstract fields
+	val id = 123123
+	var name = "Alf"
+}
+
+//
+// Scala inheritance hierarchy
+//
+// Primitive types and Unit type extend AnyVal
+// All other classes extend AnyRef (which implements Null trait)
+// AnyVal and AnyRef extend Any class (which implements Nothing trait)
+// 
+// Null is the type whose sole instance is the value null. null can be assigned to any reference, but not to value types (setting Int to null is not possible).
+// Nothing is the type with no instances, used only for generic constructs
+
+//
+// Object equality
+//
+// AnyRef class defines eq method, which checks whether two references refer to same object
+// equals method calls eq method
+// override equals methos in your class to implement equality behavior, as follows:
+class Item(val desc: String, val price: Double) {
+	final override def equals(other: Any) {
+		val that = other.asInstanceOf[Item]
+		if (that == null) false
+		else desc == that.desc && price == that.price
+	}
+}
+// NOTE! In Scala you don't generally use eq or equals, just use == operator, it calls equals after null checks
+
+**********************************************************************
+10.1 Traits
+**********************************************************************
+
+//
+// General
+//
+// - All Java interfaces can be used as Scala traits
+
+//
+// Decrale
+//
+// As in abstract classes no absctract keyword is required
+trait Logger1 {
+	def log(msg: String)
+}
+// Traits can have default method implementations..
+trait Logger2 {
+	def log(msg: String) { println(msg) }
+}
+// .. or "do-nothing" implementations
+trait Logger3 {
+	def log(msg: String) {}
+}
+
+//
+// Use
+//
+// Use extends...with keywords to implement multiple traits
+class ConsoleLogger1 extends Logger1 with Cloneable with Serializable {
+	def log(msg: String) { println(msg) }
+}
+// Use traits with default method implementations
+// Trats resemble Java classes even more than interfaces because of default implementations
+// Extending trait with default implementations is called "mixing in" its functionality
+class Account extends Logger2 { // Account mixes in Logger2
+	def withdraw(amount: Double) {
+		if (amount > balance) log("insufficient funds")
+		else balance -= amount
+	}
+}
+
+//
+// Objects with traits
+//
+// Traits can be added to objects on construction!
+class Account extends Logger3 {
+	def withdraw(amount: Double) {
+		if (amount > balance) log("Insufficient funds")		// here log will do nothing
+		else balance -= amount
+	}	
+}
+trait ConsoleLogger3 extends Logger3 {
+	def log(msg: String) { println(msg) }
+}
+val acc = new Account with ConsoleLogger3	// trait added on construction
+val acc = new Account with FileLogger3		// trait with different log implementation is added
+
+//
+// Layered traits
+//
+// Multiple traits can be added to classes or objects and they invoke each other starting with the last one
+// Example:
+trait Logger {
+	def log(msg: String) {}
+}
+trait ConsoleLogger {
+	def log(msg: String) {
+		printl(msg)
+	}
+}
+trait TimestampLogger extends Logger {
+	def log(msg: String) {
+		super.log("Date: " + new java.util.Date() + " " + msg)
+	}
+}
+trait UUIDLogger extends Logger {
+	def log(msg: String) {
+		super.log("UUID: " + UUID.get() + " " + msg) // pseudocode
+	}
+}
+val acc1 = new Account with ConsoleLogger with TimestampLogger with UUIDLogger
+acc1.withdraw(1000.0) // withdraw more than balance, get console message:
+// "Date: 01.01.01 01:01:01 UUID: 123123123 Insufficient funds"
+val acc2 = new Account with ConsoleLogger with UUIDLogger with TimestampLogger
+acc2.withdraw(1000.0) // withdraw more than balance, get console message:
+// "UUID: 123123123 Date: 01.01.01 01:01:01 Insufficient funds"
+/* 
+	How it works: each of the log methods passes a modified message to super.log.
+	With traits, super.log does not have the same meaning as it does with classes.
+	Instead, super.log calls the next trait in the trait hierarchy, which depends on the order in which the traits are added. Generally, traits are processed starting with the last one. 
+	With traits, you cannot tell from the source code which method is invoked by super.someMethod. The exact method depends on the ordering of the traits in the object or class that uses them.
+	If you need to control which trait’s method is invoked, you can specify it in brackets: 
+	super[ConsoleLogger].log(...) 
+	The specified type must be an immediate supertype; you can’t access traits or classes that are further away in the inheritance hierarchy. 
+
+	See more: Chapter 10.6 Overriding Abstract Methods in Traits
+*/
+
+//
+// Traits for rich interfaces
+//
+// Here withdraw method calls error from Logger and it calls overridden log method
+trait Logger {
+	def log(msg: String)
+	def info(msg: String) { log("INFO:" + msg) }
+	def error(msg: String) { log("ERROR":" + msg) }
+}
+class Account extends Logger {
+	override def log(msg: String) {
+		println(msg)
+	}
+	def withdraw(amount: Double) {
+		if (amount > balance) error("Insufficient funds")
+		else balance -= amount
+	}	
+}
+
+//
+// Fields in traits
+//
+// Class that mixes the trait acquires concrete fields - it's not inherited, it's added(!) to subclass
+trait ShortLogger extends Logger {
+	val maxLength = 15
+}
+// Class that mixes the trait must override uninitialized (abstract) fields
+trait ShortLogger extends Logger {
+	val maxLength: Int
+}
+class Account extends ShortLogger { 		// initialize the field in class declaration
+	val maxLength = 20 // no override keyword needed
+}
+val acc = new Account with ShortLogger {	// initialize the field on class creation
+	val maxLength = 20
+}
+
+//
+// Construction order
+//
+// 1) superclass constructor
+// 2) traits constructors (statements in the body of the trait), from left trait to right
+// 3) within each trait its parent is constructed first (common parent constructed only once)
+// 4) subclass constructor
+// EDB???
+class SavingsAccount extends Account with FileLogger with ShortLogger
+// Construction order: Account - Logger - FileLogger - ShortLogger - SavingsAccount
+
+//
+// Traits extending classes
+//
+// Trait can extend class and this class becomes superclass of the class that mixes this trait
+trait LoggedException extends Exception with Logged {
+	def log() { log(getMessage()) }
+}
+class UnhappyException extends LoggedException {
+	override def getMessage() = "arrggh!"
+}
+// Now UnhappyException is a subclass of Exception and it mixes in LoggedException trait
+// If a class already have a superclass this scheme is still possible as long as class's and trait's superclass is the same
+class UnhappyException extends IOException with LoggedException
+
+//
+// Self types
+// 
+// Trait can also declare self type
+trait LoggedException extends Logged { 
+this: Exception =>
+	def log() { log(getMessage()) }
+}
+// Note: LoggedException now does not extend Exception class, it has a self type of Exception, which means it can only be mixed into subclasses of Exception
+
+//
+// Structural types
+//
+// Trait can also declare structural type
+// It doesn't declare self type class, but only specifies methods that class must have
+trait LoggedException extends Logged {
+this: { def getMessage(): String } =>
+	def log() { log(getMessage()) }
+}
+
+**********************************************************************
+11.1 Operators
+**********************************************************************
+
+//
+// General
+//
+// - Valid characters for identifier names !#%&*+-/:<=>?@\^|~ and some others (like √ and so on)
+// - Use backquotes `` to escape any sequence of characters in names:
+val `value` = 42
+
+//
+// Binary (infix)
+//
+// Form: a identifier b
+1 to 10 <--same--> 1.to(10)
+1 -> 10 <--same--> 1.->(10)
+
+//
+// Unary (postfix and prefix)
+//
+// Form: a indentifier
+1 toString <--same--> 1.toString()
+// Operators: +, -, !, ~ are allowed as prefix operators. They are converted into calls to methods with name unary_operator:
+-a <--same--> a.unary_-
+
+//
+// Assignment
+//
+// Form: a operator= b <--same--> a = a operator b
+// <=, >=, != are not assignment operators
+// operators starting with = are never assignment operators (==, ===, =/=, etc.)
+// if class has a method operator=, then it's called directly
+
+//
+// Precedence
+//
+/* 
+	From highest to lowest:
+	operator character other than those below
+	* / %
+	+ -
+	:
+	< >
+	! =
+	&
+	^
+	|
+	character that is not an operator character
+	assignment operators
+*/
+// In form: a infix b postfix, infix have higher precedence than postfix, so it's the same as (a infix b) postfix
+
+//
+// Associativity
+//
+// All operators are left-associative, except for operators that end in a color (:) and assignment operators
+// Left-associative:
+17 - 2 - 9 <--same--> (17 - 2) - 9
+// Right-associative:
+1 :: 2 :: Nil <--same--> 1 :: (2 :: Nil)
+// Right-associative binary:
+2 :: Nil <--same--> Nil.::(2)
+
+//
+// apply, update, unapply, unapplySeq methods
+//
+// If x is NOT a function or method:
+// x(arg1, arg2, ...)				<--same-->   f.apply(arg1, arg2, ...)
+// x(arg1, arg2, ...) = value 	    <--same-->   x.update(arg1, arg2, ..., value)/
+val map = new HashMap[String, Int]
+val foo = map("foo")	// calls map.apply("foo")
+map("foo") = 42			// calls map.update("foo", 42)
+
+// apply, unapply (2 args) example:
+//
+class Fraction(val a: Int,val b: Int) {
+  def *(input: Fraction) = new Fraction(a*input.a, b*input.b)
+}
+object Fraction {
+  def apply(a: Int, b: Int) = new Fraction(a, b)
+  def unapply(input: Fraction): Option[(Int, Int)] =
+    if (input.b == 0) None else Some((input.a, input.b))
+}
+val Fraction(a, b) = Fraction(1, 3) * Fraction(2, 3) // result of * is Fraction(2, 9)
+println(a) // 2
+println(b) // 9
+val Fraction(a, b) = Fraction(1, 0) * Fraction(2, 3) // error (note 0 denominator)
+
+// unapply (2 args) example:
+//
+object Name {
+	def unapply(arg: String): Option[(String, String)] = {
+		val pos = arg.indexOf(" ")
+		if (pos == -1) None
+		else Some(arg.substring(0, pos), arg.substring(pos + 1))
+	}
+}
+val Name(firstName, lastName) = "Foo Bar"
+println(firstName) // "Foo"
+println(lastName) // "Bar"
+val Name(firstName, lastName) = "FooBar" // error
+
+// unapply (1 arg) example:
+//
+object Number {
+	def unapply(arg: String): Option[Int] = {
+		try {
+			Some(Integer.parseInt(arg.trim))
+		} catch {
+			case ex: NumberFormatException => None
+		}
+	}
+}
+val Number(n) = "1234"
+println(n) // 1234
+val Number(n) = "foo" // error
+
+// unapply (no arg) example:
+//
+object IsCompound {
+	def unapply(input: String) = input.contains(" ")
+}
+authon match {
+	case Name(first, last @ isCompound()) => ... // matches if author is smth like Peter van der Linden
+	case Name(first, last) => ...
+}
+
+// unapplySeq example:
+object Name {
+	def unapplySeq(input: String): Option[Seq[String]] = 
+		if (input.trim == "") None 
+		else Some(input.trim.split("\\s+"))
+}
+author match {
+	case Name(firstName, lastName) => ...
+	case Name(firstName, middleName, lastName) => ...
+	case Name(firstName, "van", "der", lastName) => ...
+	...
+}
+
+**********************************************************************
+12.1 Higher-Order Functions
+**********************************************************************
+
+//
+// General
+//
+// - Higher-order functions (HOF) can receive funcs as arguments and/or return funcs
+
+//
+// Funcs as values
+//
+val func = scala.math.ceil _ // space-underscore indicated the function itself, not the call to it
+func(3.14) // call it
+Array(3.14, 1.29).map(func) // pass it as an argument to other function
+// func will have a type (Double) => Double, that is a function receiving and returning Double
+
+//
+// Anonymous functions (AF)
+//
+(x: Double) => x * 3 // AF
+val tripleVal = (x: Double) => x * 3 // store AF in variable
+def tripleDef(x: Double) = x * 3 // actually the same thing
+// all of them can be used in the same way
+Array(3.14, 1.29).map((x: Double) => x * 3)
+Array(3.14, 1.29).map { (x: Double) => x * 3 } // AF in braces
+Array(3.14, 1.29) map { (x: Double) => x * 3 } // more common to use braces with infix notation
+Array(3.14, 1.29).map(tripleVal)
+Array(3.14, 1.29).map(tripleDef)
+// See more examples in "Parameter inference"
+
+//
+// Funcs with function params
+//
+def valueAtOneQuarter(f: (Double) => Double) = f(0.25)
+valueAtOneQuarter(ceil _) // 1.0
+valueAtOneQuarter(sqrt _) // 0.5
+// valueAtOneQuarter will have a type ((Double) => Double) => Double, that is a function receiving a function, receiving and returning Double, returning Double
+
+//
+// Funcs returning funcs
+//
+def mulBy(factor: Double) = (x: Double) => x * factor
+mulBy(3) // returns function (x: Double) => x * 3
+val quintuple = mulBy(5)
+quintuple(20) // 100
+// mulBy will have a type (Double) => ((Double) => Double), that is a function receiving Double and returning a function, receiving and returning Double
+
+//
+// Parameter inference
+//
+// Scala helps deduce type of AF params, so all 4 following notations are the same:
+valueAtOneQuarter((x: Double) => x*3)
+valueAtOneQuarter((x) => x*3)
+valueAtOneQuarter(x => x*3) // if AF has 1 param () can be omitted
+valueAtOneQuarter(3 * _) // if AF param only occures once to the right of =>
+// Other examples:
+val func = 3 * _ // error! cannot infer type
+val func = 3 * (_: Double) // ok! specified type of _
+val func: (Double) => Double = 3 * _ // ok! specified type of func
+
+//
+// HOF examples
+//
+(1 to 9) map (0.1 * _) 									 // collection with values 0.1, 0.2, ..., 0.9
+(1 to 9) map ("#" * _) foreach println 					 // prints triangle of #
+(1 to 9) filter (_ % 2 == 0)				   			 // 2, 4, 6, 8
+(1 to 9) reduceLeft (_ * _)								 // (...((1 * 2) * 3) * ... * 9)
+"22 4444 1 333" split " " sortWith (_.length < _.length) // Array("1", "22", "333", "4444")
+
+//
+// Closures
+//
+val double = mulBy(2)
+val triple = mulBy(3)
+println (double(4) + " " + triple(4)) // prints "8 12"
+// both double and triple funcs have their own setting for factor (arg in mulBy)
+// such funcs are called closures, which consists of code and definitions of any nonlocal variables that this code uses
+// Note: These functions are actually implemented as objects of a class, with an instance variable factor and an apply method that contains the body of the function
+
+//
+// SAM conversions
+//
+// See Chapter 12.7
+
+//
+// Currying
+//
+// Currying is the process of turning a function that takes two arguments into a function that takes one argument. That function returns a function that consumes the second argument
+def mul(x: Int, y: Int) = x * y 				// func that takes 2 args
+def mulOneAtATime(x: Int) = (y: Int) => x * y 	// curried func that returns func that takes 1 arg
+mulOneAtATime(6)(7)
+// Short way of defining curried funcs:
+def mulOneAtATime(x: Int)(y: Int) = x * y
+// Real use case example:
+val a = Array("Foo", "Bar")
+val b = Array("foo", "bar")
+a.corresponds(b)(_.equalsIgnoreCase(_)) // see explanation in Chapter 12.8
+
+//
+// Control abstractions
+//
+// You can define a func that runs some code (e.g. in different thread):
+def runInThread(block: () => Unit) { 	// if you define it like block:()=> ...
+	new Thread {
+		override def run() { 
+			block() 
+		}
+	}.start()
+}
+runInThread {
+	() => 								// ... then you need to supply ()=> before code ...
+	  println("Hi")
+	  Thread.sleep(1000)
+	  println("Bye")
+}
+def runInThread(block: => Unit) {		// ... but if you define like block:=> ...
+	new Thread {
+		override def run() { 
+			block
+		}
+	}.start()
+}
+runInThread {
+	println("Hi")
+	Thread.sleep(1000)
+	println("Bye") 						// ... then you can just write code without ()=>
+}
+// With that you can write control abstractions: funcs that look like language keywords
+// E.g. you can write a func that can be used exactly like while statement
+// Or define an until statement that works like while statement but with inverted condition
+def until(condition: => Boolean)(block: => Unit) {
+	if (!condition) {
+		block
+		until(condition)(block)
+	}
+}
+var x = 10
+until (x == 0) { 		// so (x = 0) is actually a body on the function and NOT just some expression...
+	x -= 1				// ...that is evaluated when until is called
+	print(x + " ")
+}
+
+//
+// Return expression
+//
+// In Scala return value of func is a value of func body
+// But return expression still can be used. It can be useful in control abstractions
+def indexOf(str: String, ch: Char): Int = {
+	var i = 0
+	until(i == str.length) {
+		if (srt(i) == ch) 
+			return i 			// terminates indexOf func! not AF block that is passed to until!
+		i += 1
+	}
+	return -1
+}
+// The control flow is achieved with a special exception that is thrown by the return expression in the anonymous function, passed out of the until function, and caught in the indexOf function
+
+**********************************************************************
+13.1 Collections
+**********************************************************************
+
+// See Chapter 13
+
+**********************************************************************
+14.1 Pattern matching and case classes
+**********************************************************************
+
+//
+// Match expression
+//
+// Scala's match expression doesn't have fall-through
+// Equivalent of Java's default case is case _
+// If there is no case _, then MatchError will be shown, if no pattern matches
+var sign = ...
+val ch: Char = ...
+ch match {
+	case '+' => sign = 1
+	case '-' => sign = -1
+	case _ => sign = 0
+}
+// Match is not a statement, it's an expression, so it returns a value. Simplifying the example:
+sign = ch match {
+	case '+' => 1
+	case '-' => -1
+	case _ => 0
+}
+
+//
+// Guard clauses in match
+//
+// Guard clause can be any Boolean condition
+ch match {
+	case '+' => sign = 1
+	case '-' => sign = -1
+	case _ if Character.isDigit(ch) => digit = Character.digit(ch, 10)		// guard clause
+	case _ => sign = 0
+}
+
+//
+// Variables in patterns
+//
+// If case is followed by variable name, then match expression is assigned to it
+// NOTE: default-alike case _ is actually the case where variable name is _
+str(i) match {
+	case '+' => sign = 1
+	case '-' => sign = -1
+	case ch => digit = Character.digit(ch, 10)
+}
+// Variables and guards
+str(i) match {
+	case ch if Character.isDigit(ch) => digit = Character.digit(ch, 10)
+	...
+}
+
+//
+// Type matching
+//
+// This type matching pattern is prefered over using isInstanceOf operator
+// No asInstanceOf casts are needed in cases
+// Variable names are needed otherwise you match the object itself (???)
+// Note: if you don't need variable in case code then you can name it _, but if you need it - you give it a name
+obj match {
+	case x: Int => x 	// variable is used (matched value assigned and returned) so we gave it a name
+	case s: String => Integer.parseInt(s)
+	case _: BigInt => Int.MaxValue		// variable is not used in case, name is _
+	case _ => 0
+}
+// Cannot match generic types, as in this case:
+case m: Map[String, Int] => ... 	// Don't. Generic types erased at runtime
+// But can match generic map, as in this case:
+case m: Map[_, _] => ... 			// Ok!
+// Also generic types in Arrays are not erased, as in this case:
+case a: Array[Int] => ... 			// Ok!
+
+//
+// Matching Arrays, Lists and Tuples
+//
+// Arrays
+arr match {
+	case Array(0) => "0"				// matches Array containing 0
+	case Array(x, y) => x + " " + y 	// matches any Array with 2 elements
+	case Array(0, _*) => "0 ..." 		// matches any Array starting with 0
+	case _ => "something else" 
+}
+// Lists (either use same notation as for Arrays, or the alternative one, see below)
+lst match {
+	case 0 :: Nil => "0"				// matches List(0)
+	case x :: y :: Nil => x + " " + y 	// matches List(x, y)
+	case 0 :: tail => "0 ..." 			// matches List(0, _*)
+	case _ => "something else"
+}
+// Tuples
+val tup1 = Array((0, "foo"), ("foo", 0), (1.2, 1.2)).apply(Random.nextInt(3))
+tup1 match {
+	case (0, _) => "0 ..."				// matches tup1(0)
+	case (y, 0) => y + "0"				// matches tup1(1)
+	case _ => "neither is 0"			// matches tup1(2)
+}
+
+//
+// Extractors
+//
+// See Chapter 14.6 for explanation on how matching works using unapply and unapplySeq methods
+
+//
+// Patterns in variable declarations
+//
+val (x, y) = (1, 2)				// defines x = 1 and y = 2
+val (q, r) = BigInt(10) /% 3 	// /% method returns tuple with 2 values, and they are assigned to q and r
+val Array(f, s, _*) = arr // assignes first and second elements of arr to f and s
+
+//
+// Patterns in for expressions
+//
+val map1 = Map("a" -> 1, "b" -> 2)
+for ((k, v) <- map1) {				// for each pair in map k is bound to key and v to value
+  print(k + " " + v + " ") 			// prints: a 1 b 2
+}
+import scala.collection.JavaConversions.propertiesAsScalaMap
+for ((k, "") <- System.getProperties()) { 		// match failures are silently ignored (note "")
+	println(k)
+}
+for ((k, v) <- System.getProperties() if v == "") {		// guards can also be used
+	println(k)
+}
+
+//
+// Case classes
+//
+// Case classes are optimized for use in pattern matching:
+// - constructor params automatically become val (unless explicitly declared var)
+// - apply method is provided for companion object
+// - unapply method is provided that makes pattern matching work
+// - toString, equals, hashCode, copy methods generated
+// in everything else case classes are just as regular classes
+// Note: basically if case class has params it should be a class (and it will be immutable), if it doesn't have params it can be a case object (singleton)
+// Example:
+abstract class Amount
+case class Dollar(value: Double) extends Amount
+case class Currency(value: Double, unit: String) extends Amount
+case object Nothing extends Amount 	// case object
+val amt = ...
+amt match {
+	case Dollar(v) => "$" + v
+	case Currency(_, u) => "Oh noes, I got " + u
+	case Nothing => ""
+}
+// Note: use () with case classes and no parentheses with case objects
+
+//
+// copy method and named params
+//
+val amt = Currency(29.95, "EUR")
+val price = amt.copy()				// makes a new object with same values
+val price = amt.copy(value = 19.95) // changes value property
+val price = amt.copy(unit = "CHF") 	// changes unit property
+
+//
+// Infix notation in case clauses
+//
+// Silly example:
+amt match {
+	case a Currency u => ... 	// same as case Currency(a, u)
+}
+// Real example 1:
+case class ::[E](head: B, tail: List[E]) extends List[E] 	// this case class is defined in Scala
+lst match {
+	case h :: t => ... 			// same as case ::(h,t)
+}
+// Example 2:
+result match {
+	case p ~ q => ...			// same as ~(p, q). Scala has ~ case class defined as well
+}
+result match {
+	case p ~ q ~ r => ...		// same as ~(~(p,q),r)
+}
+// Example 3:
+1 +: 7 +: 2 +: 9 +: Nil match {	// there is a method +: in List
+	case frst +: scnd +: rest => frst + scnd + rest.length // and there is an object +: with unapply
+}
+
+//
+// Matching nested structures
+//
+abstract class Item
+case class Article(desc: String, price: Double) extends Item
+case class Bundle(desc: String, discount: Double, items: Item*) extends Item
+val bundle = Bundle("Offer", 20.0,
+				Article("Xyz", 99.99),
+				Bundle("Samples", 10.0,
+					Article("Foo", 99.99),
+					Article("Bar", 99.99)))
+case Bundle(_, _, Article(desc, _), _*) => ... 	// binds desc to description of first article in bundle
+case Bundle(_, _, art @ Article(_, _), rest @ _*) => ... // art is first article, rest - others
+// Note: use @ notation to bind nested values
+// Application - function that computes price of an item:
+def price(it: Item): Double = it match {
+	case Article(_, p) => p
+	case Bundle(_, discont, items @ _*) => items.map(price _).sum - discount	// holy shit it's cool
+}
+/*
+	Comment (see Chapter 14.13)
+	If someone comes up with another kind of Item, one needs to revisit all those match clauses. In such a situation, case classes are not the right solution. In such case price(Item) should be a method in superclass and each subclass should override it. Case classes work well for structures whose makeup doesn’t change.
+	Pattern matching: easy to add new method (with match expression), hard to add new member (case class to each match expression)
+	Polymorphism: easy to add new member (subclass), hard to add new method (method to each subclass)
+/*
+
+//
+// Sealed classes
+//
+// When use pattern matching you would like compiler to check that you exhausted all alternatives
+// For this use sealed keyword for common superclass
+sealed abstract class Amount
+case class Dollar(value: Double) extends Amount 
+case class Euro(value: Double) extends Amount
+case class Currency(value: Double, unit: String) extends Amount
+// Note: all case classes should be in same file as sealed superclass
+
+//
+// Simulating enumerations
+//
+sealed abstract class TrafficLightColor
+case object Red extends TrafficLightColor
+case object Yellow extends TrafficLightColor
+case object Green extends TrafficLightColor
+color match {
+	case Red => "stop"
+	case Yellow => "ready"
+	case Red => "go"
+}
+// Alternatively use Enumeration helper class (see Chapter 6)
+
+//
+// Option type
+//
+// Case class Some wraps value (e.g. Some("Foo")), case class None indicates no value
+// Use pattern matching for options:
+map.get("foo") match {
+	case Some(value) => println(value)
+	case None => println("no value")
+}
+//
+// Alternatively isEmpty method can be used:
+val value = map.get("foo")
+if (value.isEmpty) println("no value")
+else println(value)
+///
+// Alternatively getOrElse method can be used:
+val value = map.get("foo")
+println(value.getOrElse("no value"))
+//
+// Alternatively getOrElse method in Map itself can be used:
+println(map.getOrElse("foo", "no value"))
+//
+// If you want to skip None value (do nothing), for expression can be used:
+for (value <- map.get("foo")) println(value) 	// doesn't execute println if None
+//
+// Alternatively you can consider Option to be a collection that is either empty or has one element:
+map.get("foo").foreach(println _)				// foreach ignored if None
+
+//
+// Partial funcs
+//
+val f: PartialFunction[Char, Int] = {
+	case '+' => 1
+	case '-' => -1
+}
+f('+')					// calls f.apply('+'), returns 1
+f('-')					// calls f.apply('-'), returns -1
+f.isDefinedAt('0')		// returns false
+f('0')					// throws MatchError
+//
+// Example:
+"-3+4".collect {		// collect applies partial func to all elements and returns sequence of results
+	case '+' => 1
+	case '-' => -1
+}						// returns Vector(-1, 1)
+
+//
+// Pattern Matching in AFs
+//
+val pairs: List[(Char, Int)] = ('a', 2) :: ('b', 3) :: Nil
+val chars: List[Char] = paris.map(p => p match {
+	case (ch, num) => ch
+})
+// this is the same as:
+val chars: List[Char] = pairs map {
+	case (ch, num) => ch
+}
+
+
+
+
+---
+
+
+
+
+
+
+
+

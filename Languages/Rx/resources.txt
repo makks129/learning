@@ -1,0 +1,65 @@
+Reactive Extensions, RxJava / RxAndroid
+***************************************
+
+Materials
+http://reactivex.io/tutorials.html
+https://github.com/ReactiveX/RxJava/wiki/Additional-Reading
+
+***************************************
+
+General
+https://www.youtube.com/watch?v=sTSQlYX5DU0
+http://www.oreilly.com/programming/free/files/rxjava-for-android-app-development.pdf
+https://gist.github.com/staltz/868e7e9bc2a7b8c1f754
+https://www.youtube.com/watch?v=WKore-AkisY
+https://go.microsoft.com/fwlink/?LinkID=205219
+http://www.introtorx.com/content/v1.0.10621.0/00_Foreword.html (RxNET)
+https://www.youtube.com/watch?v=Jt-_oVQVZlQ (INTERMEDIATE)
+http://akarnokd.blogspot.com.ee/ (ADVANCED)
+https://speakerdeck.com/benjchristensen (loads of talks)
+
+Theory
+http://mttkay.github.io/blog/2014/01/25/your-app-as-a-function/ (Monads, part 1)
+http://mttkay.github.io/blog/2014/01/25/monads-your-app-as-a-function-part-2/ (Monads, part 1)
+
+Courses
+https://www.coursera.org/course/reactive
+
+***************************************
+
+Observable
+http://reactivex.io/documentation/contract.html
+
+Operators
+http://reactivex.io/documentation/operators.html
+
+Backpressure
+http://reactivex.io/documentation/operators/backpressure.html
+https://github.com/ReactiveX/RxJava/wiki/Backpressure
+https://youtu.be/Jt-_oVQVZlQ?t=2133
+
+Cold/Hot observables
+https://github.com/Reactive-Extensions/RxJS/blob/master/doc/gettingstarted/creating.md#cold-vs-hot-observables
+https://youtu.be/Jt-_oVQVZlQ?t=976
+
+Subjects
+http://reactivex.io/documentation/subject.html
+http://davesexton.com/blog/post/To-Use-Subject-Or-Not-To-Use-Subject.aspx
+https://msdn.microsoft.com/en-us/library/hh242970(v=vs.103).aspx
+https://youtu.be/Jt-_oVQVZlQ?t=1870
+
+***************************************
+
+Samples
+http://rxwiki.wikidot.com/101samples#toc1 (C#)
+
+Libraries
+https://github.com/trello/RxLifecycle
+https://github.com/JakeWharton/RxBinding
+
+***************************************
+
+Practice
+
+https://github.com/jhusain/learnrxjava
+https://github.com/mutexkid/rxjava-koans

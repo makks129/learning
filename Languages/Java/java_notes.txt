@@ -1,0 +1,118 @@
+JAVA LESSONS
+
+
+LESSON 2
+- more on integers, how they go from 2147000000 to -2147000000 and loop
+- more on types, why some languages have var
+- if/else
+- loops
+- simple algorithm
+- pre-compile time, compile time, runtime
+- mini-wow
+
+.
+- scratch
+- unix time
+- chars and colors
+- how web sites and browsers work: html, http, https
+- how do servers work
+- how do mobile work
+
+
+LESSON 3
+- arrays
+- methods
+	- n+n
+	- n to power
+	- n absolute
+	- recursive n to power
+	- recursive chicken-egg problem
+- Math package
+- scope
+- public private etc
+- GC
+- classes and objects
+- static and final
+- pointers
+- lists, sets, maps
+- switch
+- parsing
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

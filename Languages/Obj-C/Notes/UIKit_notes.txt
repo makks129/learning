@@ -1,0 +1,115 @@
+UIKit
+*****
+
+1) Chain of inheritance
+	Example:
+		NSobject
+		UIResponder
+		UIView
+		UIControl
+		UIButton
+
+
+UIResponder
+- allows inherited objects to respond to user input such as taps, gestures or shakes
+
+UIView
+- functionality common to objects that are displayed on screen
+
+UIControl
+- basic behavior common to all user interface controls
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
