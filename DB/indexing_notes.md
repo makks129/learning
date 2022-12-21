@@ -70,6 +70,15 @@ E.g. when one value of `WHERE` clause will result in index scan (because index r
 
 Partitioning and `LIKE` queries can also influence bind parameters performance trade-off.
 
+### >, <, BETWEEN
+
+Leaf node traversal in the biggest performance risk for indexes. Index range should be as small as possible.
+
+For a query with range (`>/</BETWEEN`) `AND` equality (`=`), index for equality first. Otherwise the bigger the range the slower the query will be.
+
+### LIKE
+
+
 
 ---
 
