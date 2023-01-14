@@ -11,10 +11,9 @@
 - Mock coding interviews with real engineers - https://interviewing.io/?urc=DMCa
 
 
-### Exercises
+## Exercises
 
-#### Two Sum (easy)
-https://leetcode.com/problems/two-sum/
+### 🟢 [Two Sum](https://leetcode.com/problems/two-sum/)
 
 __My solution 1__
 - O(n²)
@@ -52,8 +51,7 @@ class Solution:
         return
 ```
 
-#### Valid Parentheses (easy)
-https://leetcode.com/problems/valid-parentheses/
+### 🟢 [Valid Parentheses](https://leetcode.com/problems/valid-parentheses/)
 
 __My solution 1 (good)__
 - O(n)
