@@ -388,3 +388,66 @@ Service reliability hierarchy pyramid (read from the base at the bottom):
 __NO NOTES__
 
 ## Ch11 - Being On-Call
+
+The ideal methodology in incident management strikes the perfect balance of taking steps at the desired pace when enough data is available to make a reasonable decision while simultaneously critically examining your assumptions.
+
+The most important on-call resources are:
+- Clear escalation paths
+- Well-defined incident-management procedures
+- A blameless postmortem culture
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.
