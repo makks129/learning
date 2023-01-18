@@ -1,7 +1,5 @@
 # Preparing for tech interview <!-- omit in toc -->
 
-## Table of Contents <!-- omit in toc -->
-
 - [Resources](#resources)
 - [Tips](#tips)
 - [Evaluation](#evaluation)
