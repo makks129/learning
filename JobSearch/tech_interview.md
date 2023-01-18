@@ -1,4 +1,28 @@
-# Preparing for tech interview
+# Preparing for tech interview <!-- omit in toc -->
+
+## Table of Contents <!-- omit in toc -->
+
+- [Resources](#resources)
+- [Tips](#tips)
+- [Evaluation](#evaluation)
+- [Exercises](#exercises)
+  - [🟢 1. Two Sum](#-1-two-sum)
+    - [My solution 1](#my-solution-1)
+    - [Good solution](#good-solution)
+  - [🟢 20. Valid Parentheses](#-20-valid-parentheses)
+    - [My solution 1 (good)](#my-solution-1-good)
+  - [🟢 21. Merge Two Sorted Lists](#-21-merge-two-sorted-lists)
+    - [My solution 1 (good but long, this is refactored version of it)](#my-solution-1-good-but-long-this-is-refactored-version-of-it)
+  - [🟢 121. Best Time to Buy and Sell Stock](#-121-best-time-to-buy-and-sell-stock)
+    - [My solution 1 (good)](#my-solution-1-good-1)
+    - [My solution 2 (good, a bit shorter but a bit less efficient)](#my-solution-2-good-a-bit-shorter-but-a-bit-less-efficient)
+    - [Sliding window solution (good)](#sliding-window-solution-good)
+  - [🟢 125. Valid Palindrome](#-125-valid-palindrome)
+    - [My solution 1](#my-solution-1-1)
+    - [Solution (reverse)](#solution-reverse)
+  - [🟢 226. Invert Binary Tree](#-226-invert-binary-tree)
+    - [My solution 1 (iterative)](#my-solution-1-iterative)
+    - [My solution 2 (recursive)](#my-solution-2-recursive)
 
 ## Resources
 
