@@ -8,12 +8,25 @@ https://www.youtube.com/watch?v=8-apJyr2gi0
 https://www.youtube.com/watch?v=xjpHggHKm78
 https://www.youtube.com/watch?v=beWXWEimTxs
 https://sysdig.com/blog/kubernetes-limits-requests/
+https://medium.com/directeam/kubernetes-resources-under-the-hood-part-1-4f2400b6bb96 (linux kernel namespaces explained here)
 https://nodejs.org/en/docs/guides/dont-block-the-event-loop/
 https://engineering.fb.com/2018/07/19/production-engineering/oomd/
 https://github.com/kubernetes/kubernetes/issues/51135
 
 
 ## Notes
+
+Node provide resources. Pods consume resources. Scheduler binds the two together.
+
+Resources:
+- compressible
+  - holds no state
+  - measured in time (disk time for CPU)
+  - cause slowness when revoked
+- non-compressible
+  - hold state
+  - measured in space (disk space for memory)
+  - fail when revoked
 
 CPU -> throttling
 200m CPU limit => container can use 0.2s of CPU time per sec

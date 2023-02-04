@@ -587,11 +587,413 @@ def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
 ### 🟢 [104. Maximum Depth of Binary Tree](https://leetcode.com/problems/maximum-depth-of-binary-tree)
 
 #### My solution
+- recursive
 ```python
 def maxDepth(self, root: Optional[TreeNode]) -> int:
     if not root: return 0
     return max(self.maxDepth(root.left), self.maxDepth(root.right)) + 1
 ```
+#### BFS
+- non-recursive level-order traversal
+- use a queue to go over each level 1 by 1
+```python
+def maxDepth(self, root: Optional[TreeNode]) -> int:
+    if not root: return 0
+
+    level = 0
+    q = deque([root])
+    while q:
+        for i in range(len(q)):
+            node = q.popleft()
+            if node.left:
+                q.append(node.left)
+            if node.right:
+                q.append(node.right)
+        level += 1
+    return level
+```
+#### DFS
+- pre-order DFS
+- use a stack to simulate recursive call stack
+```python
+def maxDepth(self, root: Optional[TreeNode]) -> int:        
+    s = [[root, 1]] # [node, level]
+    res = 0
+    while s:
+        node, level = s.pop()
+        if node:
+            res = max(res, level)
+            s.append([node.left, level + 1])
+            s.append([node.right, level + 1])
+    return res
+```
+
+### 🟢 [543. Diameter of Binary Tree](https://leetcode.com/problems/diameter-of-binary-tree)
+
+#### My solution (good)
+- recursive
+- on every node return max length of one of its children and also the longest path ever found
+- very similar to [110. Balanced Binary Tree] where you can propagate `balanced` state up the call stack, here we propagate longest path up the call stack
+```python
+def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:
+    def dfs(node) -> tuple[int,int]: # [max length from this node, longest path ever found]
+        if not node: return (0, 0)
+        l, longestOfL = dfs(node.left)
+        r, longestOfR = dfs(node.right)
+        longest = max(l+r, longestOfL, longestOfR)
+        return (max(l, r) + 1, longest)
+
+    return dfs(root)[1]
+```
+
+### 🟢 [100. Same Tree](https://leetcode.com/problems/same-tree)
+
+#### My solution (good)
+- recursive
+- compare each node of both trees, recursively iterate
+```python
+def isSameTree(self, p: Optional[TreeNode], q: Optional[TreeNode]) -> bool:
+    if not p and not q:
+        return True
+    if not p or not q or p.val != q.val:
+        return False
+    return self.isSameTree(p.left, q.left) and self.isSameTree(p.right, q.right)
+```
+
+### 🟢 [572. Subtree of Another Tree](https://leetcode.com/problems/subtree-of-another-tree)
+
+#### My solution (brute-force)
+- O(s+t)
+- recursive, using isSameTree on each node
+```python
+def isSubtree(self, root: Optional[TreeNode], subRoot: Optional[TreeNode]) -> bool:
+    if not root: return False
+    isSame = self.isSameTree(root, subRoot)
+    if isSame: return True
+    return self.isSubtree(root.left, subRoot) or self.isSubtree(root.right, subRoot)
+
+def isSameTree(self, t1: Optional[TreeNode], t2: Optional[TreeNode]) -> bool:
+    if not t1 and not t2: return True
+    if not t1 or not t2 or t1.val != t2.val: return False
+    return self.isSameTree(t1.left, t2.left) and self.isSameTree(t1.right, t2.right)
+```
+#### Good solution
+- flatten trees into strings
+- check if subtree string exists in tree string
+- alternatively can be done without strings, just flattening node of both trees into 2 stacks and comparing stacks like strings
+```python
+def isSubtree(self, root: Optional[TreeNode], subRoot: Optional[TreeNode]) -> bool:
+    def treeToString(p):
+        # "." is needed to indicate the beginning of a tree (for example for case [12]vs[2])
+        return "." + str(p.val) + treeToString(p.left) + treeToString(p.right) if p else "X"
+    return treeToString(subRoot) in treeToString(root)
+```
+
+### 🟢 [70. Climbing Stairs](https://leetcode.com/problems/climbing-stairs)
+
+__DP__
+
+#### My solution
+- O(n)
+- recursion + memoization
+- on each step there are 2 choices: go 1 stair up or 2 stairs up
+- treat the problem as binary tree, do DFS, memoize
+```python
+def climbStairs(self, n: int) -> int:
+    memo = {-1:0, 0:1}
+    def step(n):
+        if n in memo:
+            return memo[n]
+        memo[n-1] = step(n-1)
+        memo[n-2] = step(n-2)
+        return memo[n-1] + memo[n-2]
+    return step(n)
+```
+#### DP solution (bottom-up, iterative)
+- O(n)
+- iterative
+- recursive solution can become iterative if you think about this problem __bottom-up__ (from final case to initial case)
+- E.g. on n=5, calculate num of steps needed to take from stair 5, then 4, then 3, etc. Each lower step will be just the sum of 2 higher steps
+```python
+def climbStairs(self, n: int) -> int:
+    oneToLast, last = 1, 0 # there is only 1 way to do n-1->n and 0 ways to do n->n
+    for i in range(n):
+        # move oneToLast to the left, calculating its result as the sum or next 2
+        # also move last to left
+        oneToLast, last = oneToLast+last, oneToLast
+    return oneToLast
+```
+
+### 🟢 [746. Min Cost Climbing Stairs](https://leetcode.com/problems/min-cost-climbing-stairs)
+
+__DP__
+
+#### My solution
+- O(n)
+- iterative
+- bottom-up
+- same logic as in [70. Climbing Stairs] but on each iteration we need to calculate min cost of 2 previous options
+- then follow from right to left the same way
+```python
+def minCostClimbingStairs(self, cost: List[int]) -> int:
+    l, r = 0, 0
+    for i in range(len(cost)-1, -1, -1):
+        l, r = min(cost[i]+l, cost[i]+r), l
+    return min(l, r)
+```
+#### Solution without pointers
+- the only difference is that we mutate current value in the array to a new value, instead of using 2 pointers
+```python
+def minCostClimbingStairs(self, cost: List[int]) -> int:
+    cost.append(0)
+    for i in range(len(cost)-3, -1, -1):
+        cost[i] += min(cost[i+1], cost[i+2])
+    return min(cost[0], cost[1])
+```
+
+### 🟡 [49. Group Anagrams](https://leetcode.com/problems/group-anagrams)
+
+#### My solution (brute-force)
+- add every new word to the list of its anagrams, or create a new list for it
+```python
+def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
+    res = []
+    for s in strs:
+        added = False
+        for r in res:
+            if self.isAnagram(s, r[0]):
+                r.append(s)
+                added = True
+        if not added:
+            res.append([s])
+    return res
+
+def isAnagram(self, s1: str, s2: str) -> bool:
+    return Counter(s1) == Counter(s2)
+```
+#### Good solution
+- O(n*m)
+- go over each word, over each char in it, and count them up
+- add count of chars for each word as a key to `res`
+- if next word's char count matches one of the other char counts, it's going to go under the same key in this map
+- if not, it will create a new key in this map
+- return all values (each key has a list of words) of this map
+```python
+def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
+    res = defaultdict(list)
+    for s in strs:
+        count = [0]*26 # a..z
+        for c in s:
+            count[ord(c) - ord("a")] += 1
+        res[tuple(count)].append(s)
+    return res.values()
+```
+
+### 🟡 [347. Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements)
+
+#### My solution
+- use hashmap to count occurrences
+- then sort it by count
+- then return k top
+- less efficient than optimal (see below)
+```python
+def topKFrequent(self, nums: List[int], k: int) -> List[int]:
+    count = {}
+    for n in nums:
+        if n in count:
+            count[n] = [n, count[n][1]+1]
+        else:
+            count[n] = [n, 1]
+    res = sorted(count.values(), reverse=True, key=lambda arr: arr[1])
+    return [arr[0] for arr in res[0:k]]
+```
+#### Good solution
+- O(n) !
+- use hashmap to count occurrences
+- then put them into a n-length array, where i is count and value is list of nums with this count
+- the iterate this array backwards to return top k nums
+```python
+def topKFrequent(self, nums: List[int], k: int) -> List[int]:
+    count = {}
+    freq = [[] for _ in range(len(nums)+1)]
+    for n in nums:
+        count[n] = count.get(n, 0) + 1
+    for n, c in count.items():
+        freq[c].append(n)
+    res = []
+    for i in range(len(freq)-1, 0, -1):
+        for n in freq[i]:
+            res.append(n)
+            if len(res) == k:
+                return res # will always execute at some point according to problem definition
+    # Final step but using list comprehension
+    # ll = [freq[i] for i in range(len(freq)-1, 0, -1)]
+    # return [item for sublist in ll for item in sublist][0:k]
+```
+
+### 🟡 [238. Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self)
+
+#### My solution (optimal)
+- O(n) space, O(1) time
+- iterate over the array twice
+- on first pass (l->r): compute prefix, and store in results array
+- on second pass (l<-r): compute postfix and multiply prefixes in result
+```python
+def productExceptSelf(self, nums: List[int]) -> List[int]:
+    res = [1 for _ in nums]
+    for i in range(1, len(nums)):
+        res[i] = res[i-1] * nums[i-1]
+    p = 1
+    for i in range(len(nums)-2, -1, -1):
+        p = p * nums[i+1]
+        res[i] = res[i] * p
+    return res
+```
+
+### 🟡 [36. Valid Sudoku](https://leetcode.com/problems/valid-sudoku)
+
+#### Good solution
+- iterate over the board once
+- on each value, check if its present in current row, column and square
+- if yes, return false, if no - add value to row, column and square maps
+- to keeps squares we will have these keys for them:
+  (0,0)(0,1)(0,2)
+  (1,0)(1,1)(1,2)
+  (2,0)(2,1)(2,2)
+- each key here identifies one square, to get this key we just need to int-divide current row//3 and current col//3
+```python
+def isValidSudoku(self, board: List[List[str]]) -> bool:
+    rows = collections.defaultdict(set)
+    cols = collections.defaultdict(set)
+    squares = collections.defaultdict(set) # key = (row//3,col//3)
+    for r in range(9):
+        for c in range(9):
+            v = board[r][c]
+            if v == '.':
+                continue
+            if (v in rows[r] or
+                v in cols[c] or
+                v in squares[(r//3,c//3)]):
+                return False
+            cols[c].add(v)
+            rows[r].add(v)
+            squares[(r//3,c//3)].add(v)
+    return True
+```
+
+### 🟡 [271. Encode and Decode Strings](https://leetcode.com/problems/encode-and-decode-strings)
+
+#### My solution
+- O(n)
+- using ord/chr to encode each char
+- sub-optimal, because it's slow
+```python
+class Codec:
+    def encode(self, strs: List[str]) -> str:
+        res = ""
+        for s in strs:
+            for c in s:
+                res += str(ord(c)) + "_"
+            res += ",_"
+        return res[0:-3]
+
+    def decode(self, s: str) -> List[str]:
+        if not s: return [""]
+        res = []
+        word = ""
+        chars = s.split("_")
+        for c in chars:
+            if (c == ","):
+                res.append(word)
+                word = ""
+            else:
+                word += chr(int(c))
+        res.append(word)
+        return res
+```
+#### Good solution
+- O(n)
+- append next word length to the beginning of that word
+- example: ["Hello", "world"] -> "5-Hello5-world"
+```python
+class Codec:
+    def encode(self, strs: List[str]) -> str:
+        res = ""
+        for s in strs:
+            res += str(len(s)) + "-" + s # - is a delimiter between string length and string itself
+        return res
+
+    def decode(self, s: str) -> List[str]:
+        res, i, nextWordLen = [], 0, ""
+        while i < len(s):
+            if s[i] == "-":
+                res.append(s[i+1:i+1+int(nextWordLen)])
+                i += int(nextWordLen) + 1
+                nextWordLen = ""
+            else:
+                nextWordLen += s[i]
+                i += 1
+        return res
+```
+
+### 🟡 [128. Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence)
+
+__Lessons learned:__
+- When drawing the problem, identify unique properties of each entity. E.g. sequences start without the left neighbor. We don't need to consider n with the left neighbor because it's not start of a sequence.
+- By converting array to `set` we can always check for any number with O(1) complexity. So while iterating we can check even the future numbers before we iterated to them.
+
+#### My solution (space is suboptimal)
+- time O(n), space O(n), however take more space than optimal solution
+- iterate over the list, for each n saving it to a map
+- creating lists from nums on the left and right of n
+```python
+def longestConsecutive(self, nums: List[int]) -> int:
+    longestArrLen = 0
+    map = {} # {n:[]}
+    for n in nums:
+        if n in map: continue
+        arr = [n]
+        if n-1 in map:
+            arr = map[n-1] + arr
+        if n+1 in map:
+            arr = arr + map[n+1]
+        map[n] = [n]
+        map[arr[0]] = arr
+        map[arr[-1]] = arr
+        longestArrLen = max(longestArrLen, len(arr))
+    return longestArrLen
+```
+#### Good solution
+- time O(n), space O(n)
+- if you convert list to set we can always check prev/next neighbor while iterating
+- important: sequences start with a num that doesn't have the left neighbor
+- if n doesn't have a left neighbor - start counting right, while saving longest found seq
+```python
+def longestConsecutive(self, nums: List[int]) -> int:
+    longestSeqLen = 0
+    numsSet = set(nums)
+    for n in numsSet:
+        if n-1 not in numsSet:
+            seqLen = 1
+            while n + seqLen in numsSet:
+                seqLen += 1
+            longestSeqLen = max(longestSeqLen, seqLen)
+    return longestSeqLen
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
