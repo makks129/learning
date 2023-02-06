@@ -1003,7 +1003,7 @@ class Codec:
 ### 🟡 [128. Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence)
 
 __Lessons learned:__
-- When drawing the problem, identify unique properties of each entity. E.g. sequences start without the left neighbor. We don't need to consider n with the left neighbor because it's not start of a sequence.
+- When drawing the problem, identify unique properties of each entity (a number, a sequence, anything involved). E.g. sequences start without the left neighbor. We don't need to consider n with the left neighbor because it's not start of a sequence.
 - By converting array to `set` we can always check for any number with O(1) complexity. So while iterating we can check even the future numbers before we iterated to them.
 
 #### My solution (space is suboptimal)
@@ -1045,8 +1045,60 @@ def longestConsecutive(self, nums: List[int]) -> int:
     return longestSeqLen
 ```
 
+### 🟡 [167. Two Sum II - Input Array Is Sorted](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted)
 
+#### My solution (optimal)
+- time O(n), space O(1)
+- use 2 pointers on both sides of the array: L and R
+- if sum < target, increase the sum - move L to the right
+- if sum > target, decrease the sum - move R to the left
+```python
+def twoSum(self, numbers: List[int], target: int) -> List[int]:
+    l, r = 0, len(numbers)-1
+    while l < r:
+        sum = numbers[l] + numbers[r]
+        if sum < target:
+            l += 1
+        elif sum > target:
+            r -= 1
+        else:
+            return [l+1,r+1]
+```
 
+### 🟡 [15. 3Sum](https://leetcode.com/problems/3sum)
+
+#### My solution (optimal)
+- time O(n²), space O(1) unless sort implementation takes O(n) space
+- first sort array!
+- when the array is sorted the problem becomes a twoSum for each n
+- take n, find all n+x+y=0 for it
+- use 2-pointers twoSum algorithm (time O(n), space O(1))
+- use `set` for results, as it will eliminate duplicates
+- as our array is sorted numbers will always be in the same order, so set will eliminate duplicates
+```python
+def threeSum(self, nums: List[int]) -> List[List[int]]:
+    nums.sort()
+    res = set()
+    for i in range(len(nums)):
+        # if the same number as before, skip it
+        if i > 0 and nums[i] == nums[i-1]:
+            continue
+        # otherwise find all twoSums for this n
+        l, r = i + 1, len(nums)-1
+        while l < r:
+            sum = nums[i] + nums[l] + nums[r]
+            if sum > 0:
+                r -= 1
+            elif sum < 0:
+                l += 1
+            else:
+                res.add(tuple([nums[i], nums[l], nums[r]]))
+                l += 1
+                # instead of using a set, you can also do this:
+                # while nums[l] == nums[l-1] and l < r:
+                #     l += 1
+    return list(res)
+```
 
 
 
