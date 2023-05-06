@@ -3,7 +3,7 @@
 Everything in Linux is a file (commands, configs, devices, etc.)
 
 `/` - root
-- `home` - dir for users' home dirs
+- `home` - dir for users" home dirs
 - `root` - dir for root home dir
 - `bin` - binaries (Linux commands are here also)
 - `sbin` - super bin (commands only for admin)
@@ -106,7 +106,7 @@ CTRL+R - reverse search
 
 `cat << EOF > file.txt` (`EOF`+Enter to finish) - multiline write to file and finish on `EOF`
 
-`echo "foo" > file.txt` - write to file
+`echo foo > file.txt` - write to file
 
 `mv <dir/file> <dir/file>` - move/rename
 
@@ -118,11 +118,13 @@ CTRL+R - reverse search
 
 `rmdir` - remove dir
 
+`hexdump` - read binary data (https://www.suse.com/c/making-sense-hexdump/)
+
 ## Users
 
 `/etc/passwd`
 list of all users
-format: username, password, uid, gid, input data (name, phone, etc), home dir, default shell
+format: username, password, uid, gid, input data (name, phone, etc)), home dir, default shell
 
 `/etc/shadow`
 passwords
@@ -158,7 +160,7 @@ list all groups this user is in
 - `-d <user> <group>` remove user from a group
 
 `groupdel <group>`
-delete group (doesn't delete users in it)
+delete group (doesn"t delete users in it)
 
 `su`
 switch user
@@ -167,6 +169,14 @@ switch user
 
 `visudo`
 edit sudoers file
+
+### Capabilities
+
+`cat /usr/include/linux/capability.h`
+
+### OS
+
+`cat /etc/os-release`
 
 
 ## Packages
@@ -197,7 +207,7 @@ Installs packages from apt repository
 ## Processes / Daemons
 
 **Process** - instance of a running program
-**Deamon** - non-interractive process (have `d` at the end of the name, like `sshd`), aka Unit
+**Deamon** - non-interractive process (have `d` at the end of the name, like `sshd`)), aka Unit
 
 ### Processes
 
@@ -217,7 +227,7 @@ Processes can be foreground (e.g. a shell program you need to quit with ctrl+c) 
 Kill codes (`kill -l`):
 - `-15`-`SIGTERM` - default signal sent on kill (soft-kill, more like request to kill)
 - `-2`-`SIGINT`) - CTRL+C - interrupt
-- `-19`-`SIGSTOP` / `18`-`SIGCONT` - CTRL+Z - will put foreground process to sleep (it will be stopped but will still be a foreground process), or then return it back from sleep
+- `-19`-`SIGSTOP` / `18`-`SIGCONT` - CTRL+Z - will put foreground process to sleep (it will be stopped but will still be a foreground process)), or then return it back from sleep
 - `-9`-`SIGKILL` - hard-kill
 
 

@@ -151,22 +151,6 @@ __Cons__
 
 
 
-## GraphQL in PD
-
-Native GraphQL impl in [menu-waitress](https://github.com/pipedrive/menu-waitress/pull/473/files)
-
-Generated GraphQL:
-- [generated-graphql](https://github.com/pipedrive/generated-graphql)
-- lib that generates code for `generated-graphql` [graphql-service-codegen](https://github.com/pipedrive/graphql-service-codegen)
-
-
-
-
-
-
-
-
-
 
 
 

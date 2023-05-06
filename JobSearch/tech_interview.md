@@ -101,6 +101,11 @@
 
 __To approach a problem:__
 - Visualize it by drawing it out
+  - array of values: bars, tree
+  - ...
+- Think about the fundamental principles of the problem
+  - is there the same choice on every step?
+  - look at extreme cases (array is always increasing/decreasing, etc)
 - Think about how to solve it by hand, code the solution
 - Come up with more examples
 - Break it down into smaller independent parts
@@ -129,6 +134,11 @@ __To optimize space complexity__:
 ## Evaluation
 
 TBD
+
+## Big O
+
+TBD reflect on big O notation
+- how to calculate O for recursion (regular, tail, double-choice/triple/etc)
 
 
 ## Data structures
@@ -169,7 +179,7 @@ def twoSum(self, nums: List[int], target: int) -> List[int]:
         p2 = p1 + 1
     return []
 ```
-#### Good solution
+#### Optimal solution
 - O(n)
 - use hashmap to store previous values {val:i}
 - iterate once, looking for a num that is a difference between current num and target
@@ -187,7 +197,7 @@ def twoSum(self, nums: List[int], target: int) -> List[int]:
 
 ### 🟢 [20. Valid Parentheses](https://leetcode.com/problems/valid-parentheses)
 
-#### My solution 1 (good)
+#### My solution 1 (optimal)
 - O(n)
 - use stack to iterate over string and add chars to it
 - if top char in stack closes the current bracket, then pop, otherwise append
@@ -236,7 +246,7 @@ def mergeTwoLists(self, list1: Optional[ListNode], list2: Optional[ListNode]) ->
 
 ### 🟢 [121. Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock)
 
-#### My solution 1 (good)
+#### My solution 1 (optimal)
 - O(n)
 - store min and maxProfit
 - iterate and compare, updating min and maxProfit
@@ -245,14 +255,13 @@ def maxProfit(self, prices: List[int]) -> int:
   min = prices[0]
   maxProfit = 0
   for p in prices:
-      print(p, min, maxProfit)
       if p - min > maxProfit:
           maxProfit = p - min
       if p < min:
           min = p
   return maxProfit
 ```
-#### My solution 2 (good, a bit shorter but a bit less efficient)
+#### My solution 2 (optimal, a bit shorter but a bit less efficient)
 ```python
 def maxProfit(self, prices: List[int]) -> int:
   minPrice = prices[0]
@@ -262,7 +271,7 @@ def maxProfit(self, prices: List[int]) -> int:
       minPrice = min(minPrice, p)
   return maxProfit
 ```
-#### Sliding window solution (good)
+#### Sliding window solution (optimal)
 - 2 pointers: start at 0,1
 - move L only if price at R is smaller
 - move R by 1 each time
@@ -337,7 +346,7 @@ def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
 
 ### 🟢 [242. Valid Anagram](https://leetcode.com/problems/valid-anagram)
 
-#### My solution 1 (good)
+#### My solution 1 (optimal)
 - O(n), 2n
 - map chars from string S
 - remove from map on string T
@@ -366,7 +375,7 @@ def isAnagram(self, s: str, t: str) -> bool:
 
 ### 🟢 [704. Binary Search](https://leetcode.com/problems/binary-search)
 
-#### Good solution
+#### Optimal solution
 - O(log n)
 - 2 pointers, L and R
 - Mid pointer is (L+R)/2
@@ -526,7 +535,7 @@ def hasCycle(self, head: Optional[ListNode]) -> bool:
             head = head.next
     return False
 ```
-#### Good solution
+#### Optimal solution
 - O(n) space O(1)
 - not using any additional data structures
 - Floyd's Tortoise and Hare: iterating over the list with 2 pointers: 1 makes 1 step, 2 makes 2 steps
@@ -544,7 +553,7 @@ def hasCycle(self, head: Optional[ListNode]) -> bool:
 
 ### 🟢 [232. Implement Queue using Stacks](https://leetcode.com/problems/implement-queue-using-stacks)
 
-#### My solution (good)
+#### My solution (optimal)
 - push O(1), pop/peek O(n) (because it does it only when s2 is empty complexity of the dequeue operation becomes O(1))
 - it's also possible to implement push O(n) and pop/peek O(1), but that solution is worse as it will move all elements from s1 to s2 and back to s1 on every push
 ```python
@@ -694,7 +703,7 @@ def maxDepth(self, root: Optional[TreeNode]) -> int:
 
 ### 🟢 [543. Diameter of Binary Tree](https://leetcode.com/problems/diameter-of-binary-tree)
 
-#### My solution (good)
+#### My solution (optimal)
 - recursive
 - on every node return max length of one of its children and also the longest path ever found
 - very similar to [110. Balanced Binary Tree] where you can propagate `balanced` state up the call stack, here we propagate longest path up the call stack
@@ -712,7 +721,7 @@ def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:
 
 ### 🟢 [100. Same Tree](https://leetcode.com/problems/same-tree)
 
-#### My solution (good)
+#### My solution (optimal)
 - recursive
 - compare each node of both trees, recursively iterate
 ```python
@@ -741,7 +750,7 @@ def isSameTree(self, t1: Optional[TreeNode], t2: Optional[TreeNode]) -> bool:
     if not t1 or not t2 or t1.val != t2.val: return False
     return self.isSameTree(t1.left, t2.left) and self.isSameTree(t1.right, t2.right)
 ```
-#### Good solution
+#### Optimal solution
 - flatten trees into strings
 - check if subtree string exists in tree string
 - alternatively can be done without strings, just flattening node of both trees into 2 stacks and comparing stacks like strings
@@ -835,7 +844,7 @@ def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
 def isAnagram(self, s1: str, s2: str) -> bool:
     return Counter(s1) == Counter(s2)
 ```
-#### Good solution
+#### Optimal solution
 - O(n*m)
 - go over each word, over each char in it, and count them up
 - add count of chars for each word as a key to `res`
@@ -871,7 +880,7 @@ def topKFrequent(self, nums: List[int], k: int) -> List[int]:
     res = sorted(count.values(), reverse=True, key=lambda arr: arr[1])
     return [arr[0] for arr in res[0:k]]
 ```
-#### Good solution
+#### Optimal solution
 - O(n) !
 - use hashmap to count occurrences
 - then put them into a n-length array, where i is count and value is list of nums with this count
@@ -916,7 +925,7 @@ def productExceptSelf(self, nums: List[int]) -> List[int]:
 
 ### 🟡 [36. Valid Sudoku](https://leetcode.com/problems/valid-sudoku)
 
-#### Good solution
+#### Optimal solution
 - iterate over the board once
 - on each value, check if its present in current row, column and square
 - if yes, return false, if no - add value to row, column and square maps
@@ -975,7 +984,7 @@ class Codec:
         res.append(word)
         return res
 ```
-#### Good solution
+#### Optimal solution
 - O(n)
 - append next word length to the beginning of that word
 - example: ["Hello", "world"] -> "5-Hello5-world"
@@ -1027,7 +1036,7 @@ def longestConsecutive(self, nums: List[int]) -> int:
         longestArrLen = max(longestArrLen, len(arr))
     return longestArrLen
 ```
-#### Good solution
+#### Optimal solution
 - time O(n), space O(n)
 - if you convert list to set we can always check prev/next neighbor while iterating
 - important: sequences start with a num that doesn't have the left neighbor
@@ -1100,24 +1109,871 @@ def threeSum(self, nums: List[int]) -> List[List[int]]:
     return list(res)
 ```
 
+### 🟡 [11. Container With Most Water](https://leetcode.com/problems/container-with-most-water)
+
+- Brute-force is O(n²)
+- Solution with sorting is O(nlogn)
+- Optimal solution is O(n)
+
+#### My solution
+- O(nlogn)
+- my idea was to move the horizontal water line from the top
+- sort the array to start with the biggest value and lower the line
+- keep max width of the container by having 2 pointers: L and R, updating them only if the width grows
+```python
+def maxArea(self, heights: List[int]) -> int:
+    elemsWithIndices = [[e,i] for i, e in enumerate(heights)]
+    elemsWithIndicesSorted = sorted(elemsWithIndices, key = lambda l: l[0], reverse=True)
+
+    l, r = elemsWithIndicesSorted[0][1], elemsWithIndicesSorted[0][1]
+    maxArea = 0
+
+    for [height, i] in elemsWithIndicesSorted:
+        l = min(l, i)
+        r = max(r, i)
+        length = max(i - l, r - i)
+        maxArea = max(maxArea, height * length)
+
+    return maxArea
+```
+
+#### Optimal solution
+- O(n)
+- have 2 pointers L and R starting at max width
+- move the pointer the will potentially increase the height (so the one with current lower height)
+- the idea is that with each step width will change by 1 but the height _might_ increase
+- if the height increases, we will potentially have a higher area
+- if the height does not increase, we already calculated previous area which is bigger
+- so the only potential is to increase the maxArea, if it decreases we don't care about it
+```python
+def maxArea(self, heights: List[int]) -> int:
+    l, r = 0, len(heights) - 1
+    maxArea = 0
+
+    while l < r:
+        length = r - l
+        height = min(heights[l], heights[r])
+        maxArea = max(maxArea, length * height)
+        if heights[l] < heights[r]:
+            l += 1
+        else:
+            r -= 1
+
+    return maxArea
+```
+
+### 🔴 [42. Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water)
+
+#### My solution
+- time O(n), space O(n)
+- it's ugly code but it works
+- I'm trying to find every valley and fill it in with water
+- I have 2 pointers: L, R
+- I move R until a peak, then move L to R while adding down steps to the stack
+- on the way from L to R I count water and mutate original array
+- when L reaches R, I pop the stack to see if I need to move L back to that index from the stack
+```python
+def trap(self, h: List[int]) -> int:
+    total = 0
+    Lstack = []
+    L, R = 0, 0
+
+    while R < len(h):
+        if L == R:
+            if Lstack:
+                peek = Lstack[-1] # check last stack value
+                L = peek + 1 # move L to next after that
+                while L < R: # keep moving L towards R, adding water
+                    water = min(h[peek], h[R]) - h[L]
+                    total += water
+                    h[L] += water
+                    L += 1
+                if h[R] < h[peek]: # if value at R is smaller than last value in the stack, just move R
+                    R += 1
+                    continue
+                else:
+                    Lstack.pop() # otherwise pop stack and repeat
+                    continue
+            else:
+                R += 1
+                continue
+
+        if h[R-1] >= h[R]: # R went down or straight
+                R += 1
+        else: # R went up
+            while L < R: # until L meets R
+                L += 1
+                if h[L-1] > h[L]: # L went down
+                    Lstack.append(L-1) # add L peak to stack
+
+    return total
+```
+
+### Optimal solution 1
+- time O(n), space O(n)
+- at every `i` we need to know what were the max value on the left of it and max value on the right of it
+- for that we will pass the array twice, left to right (calculating max left at every `i`) and then right to left (calculating max right at every `i`)
+- then we iterate again, and at every `i` we calculate water level and add it to total
+```python
+def trap(self, heights: List[int]) -> int:
+    maxL = [heights[0]]
+    maxR = [heights[-1]]
+
+    for h in heights:
+        maxL.append(max(h, maxL[-1]))
+
+    for i in range(len(heights)-1, -1, -1):
+        maxR.append(max(heights[i], maxR[-1]))
+    maxR.reverse()
+
+    total = 0
+    for i, h in enumerate(heights):
+        l = maxL[i]
+        r = maxR[i]
+        water = min(l, r) - h
+        if water > 0:
+            total += water
+
+    return total
+```
+
+### Optimal solution 2 (version 1)
+- time O(n), space O(1)
+- the simplest solution
+- it's similar to previous solutio, but does not require additional arrays as it calculates maxL and maxR on the go
+- have 2 pointers: L and R, on 2 sides of the array
+- and also have 2 max values: maxL and maxR
+- move L only if maxL is smaller than maxR (and the other way around)
+- so only move pointers on the side of the smallest peak
+- the idea is that with every new move we might potentially increase the max wall height at this index, and if there is a wall it means the water level on that side will never be lower. So we just need to calculate min water level between this wall and the wall on the other side, minus current value
+- when you move a pointer, calculate water level at new index and then update corresponding max
+```python
+def trap(self, heights: List[int]) -> int:
+    total = 0
+    L, R = 0, len(heights)-1
+    maxL, maxR = heights[L], heights[R]
+
+    while L < R:
+        if maxL <= maxR:
+            L += 1
+            water = min(maxL, maxR) - heights[L]
+            if water > 0: total += water
+            maxL = max(maxL, heights[L])
+        else:
+            R -= 1
+            water = min(maxL, maxR) - heights[R]
+            if water > 0: total += water
+            maxR = max(maxR, heights[R])
+
+    return total
+```
+
+### Optimal solution 2 (version 2)
+- same solution as previous one, just a bit shorter code
+```python
+def trap(self, heights: List[int]) -> int:
+    total = 0
+    L, R = 0, len(heights)-1
+    maxL, maxR = heights[L], heights[R]
+
+    while L < R:
+        if maxL <= maxR:
+            L += 1
+            maxL = max(maxL, heights[L])
+            total += maxL - heights[L]
+        else:
+            R -= 1
+            maxR = max(maxR, heights[R])
+            total += maxR - heights[R]
+
+    return total
+```
+
+### 🟡 [155. Min Stack](https://leetcode.com/problems/min-stack)
+
+#### My solution (optimal)
+- O(1) for each operation
+- for each added value keep the min value at this point
+- you can do it with 2 stack: one for values and one for min values
+- I did it with 1 stack having 2 values on each entry [val, minVal]
+```python
+def __init__(self):
+    self.stack = []
+
+def push(self, val: int) -> None:
+    if self.stack:
+        [prevVal, prevMinVal] = self.stack[-1]
+        self.stack.append([val, min(prevMinVal, val)])
+    else:
+        self.stack.append([val, val])
+
+def pop(self) -> None:
+    self.stack.pop()
+
+def top(self) -> int:
+    [val, minVal] = self.stack[-1]
+    return val
+
+def getMin(self) -> int:
+    [val, minVal] = self.stack[-1]
+    return minVal
+```
+
+### 🟡 [150. Evaluate Reverse Polish Notation](https://leetcode.com/problems/evaluate-reverse-polish-notation)
+
+#### My solution (optimal)
+- time O(n), space O(n)
+- use stack
+- add numbers
+- on operators pop previous 2 values, compute operation, push result to stack
+```python
+def evalRPN(self, tokens: List[str]) -> int:
+    ops = ['+', '-', '*', '/']
+    stack = []
+    for t in tokens:
+        if t not in ops:
+            stack.append(t)
+        else:
+            y, x = int(stack.pop()), int(stack.pop())
+            if t == '+': stack.append(x + y)
+            elif t == '-': stack.append(x - y)
+            elif t == '*': stack.append(x * y)
+            elif t == '/': stack.append(x / y)
+    return int(stack[0])
+```
+
+### 🟡 [22. Generate Parentheses](https://leetcode.com/problems/generate-parentheses)
+
+#### My solution (optimal)
+- recursive
+- there are many ways to solve this recursively
+- it's possible to count open and closed brackets from 0 to n
+- I'm counting open from 0 to n and closed from open to 0, doesn't really matter
+- you can also use global stack variable to collect brackets instead of passing brackets as an argument, but the solution will look a bit more complicated
+- I also solved it non-recursively with 2 stacks, but that solution is less elegant
+```python
+def generateParenthesis(self, n: int) -> List[str]:
+    res = []
+    def rec(brackets, open, closed):
+        if open == 0 and closed == 0:
+            res.append(brackets)
+        else:
+            if open > 0:
+                rec(brackets + "(", open - 1, closed + 1)
+            if closed > 0:
+                rec(brackets + ")", open, closed - 1)
+    rec("(", n - 1, 1)
+    return res
+```
+
+### 🟡 [739. Daily Temperatures](https://leetcode.com/problems/daily-temperatures)
+
+#### My solution (optimal)
+- time O(n), space O(n)
+- using stack (monotonic decreasing stack)
+- on every T there are 2 choices: prevT is smaller or same/bigger
+- if prevT is smaller, we know we found a higher temp, so we can pop prev value from the stack and compute diff in indices
+- if prevT is same/bigger, then we are still going down in decreasing order, so we just add to the stack
+- so every next T can collapse the smaller Ts on the top of the stack and become the new smallest T in the stack
+- in this solution I'm mutating original array to keep the result
+- alternatively it's possible to create a new array filled with 0s, then it won't be necessary to do the second passing of the stack in the end
+```python
+def dailyTemperatures(self, temperatures: List[int]) -> List[int]:
+    stack = []
+
+    for i, t in enumerate(temperatures):
+        while stack and stack[-1][0] < t:
+            prevI = stack.pop()[1]
+            temperatures[prevI] = i - prevI
+        stack.append([t, i])
+
+    while stack:
+        prevI = stack.pop()[1]
+        temperatures[prevI] = 0
+
+    return temperatures
+```
+
+### 🟡 [853. Car Fleet](https://leetcode.com/problems/car-fleet)
+
+Kinda stupid problem because complexity is determined by pre-sorting rather than the algorithm itself.
+Also it's just not an interesting or beautiful problem.
+
+#### My solution (optimal)
+- time O(nlogn) because of sorting
+- basic idea is to realize that we need to sort cars first, because we want to start with the car that is most in the front and move back
+- we have cars sorted and zipped with their speeds
+- then we need to realize that a car will collide with a car before it if it take same/fewer steps to reach the end (which is a simple calculation)
+- if they will collide, it means they will become 1 fleet
+- if a car take more steps to reach the end, it means it won't collide and needs to become a separate fleet
+- we can use a stack to keep track of those fleets
+- it's possible to solve it by pushing every car's steps to the stack first and then popping if steps are fewer/same as previous fleet in the stack, but it's basically the same solution, just a bit different code
+```python
+def carFleet(self, target: int, position: List[int], speed: List[int]) -> int:
+    arr = sorted(zip(position, speed))
+    stack = [(target - arr[-1][0]) / arr[-1][1]]
+
+    for i in range(len(arr)-2, -1, -1):
+        (p, s) = arr[i]
+        steps = (target - p) / s
+        maxSteps = stack[-1]
+        if steps > maxSteps:
+            stack.append(steps)
+
+    return len(stack)
+```
+
+### 🟡 [[74. Search a 2D Matrix](https://leetcode.com/problems/search-a-2d-matrix)
+
+2D binary search
+
+#### My solution (optimal)
+- O(log(m*n))
+- this is a solution with only 1 loop
+- we imagine all the indices as one going from 0 to ROWS*COLS-1, as one straight line
+- when we calculate the M pointer we simply decode which row and column it is
+- it's a bit harder to write than the solution with 2 loops but code is shorter and reads simpler
+```python
+def searchMatrix(self, matrix: List[List[int]], target: int) -> bool:
+    ROWS, COLS = len(matrix), len(matrix[0])
+    L, R = 0, ROWS*COLS-1
+
+    while L <= R:
+        M = (L + R) // 2
+        row = M // COLS
+        col = M % COLS
+        if target > matrix[row][col]:
+            L = M+1
+        elif target < matrix[row][col]:
+            R = M-1
+        else:
+            return True
+
+    return False
+```
+
+#### My solution (also optimal)
+- O(log(m*n))
+- this is a solution with 2 loops
+- find row first, then find column within that row
+- can be done with nested loops or sequential, doesn't really matter
+```python
+def searchMatrix(self, matrix: List[List[int]], target: int) -> bool:
+    ROWS, COLS = len(matrix), len(matrix[0])
+    l, r = 0, ROWS-1
+
+    while l <= r:
+        mRow = (l+r)//2
+        if target < matrix[mRow][0]:
+            r = mRow - 1
+        elif target > matrix[mRow][COLS-1]:
+            l = mRow + 1
+        else:
+            l, r = 0, COLS-1
+            while l <= r:
+                mCol = (l+r)//2
+                if target > matrix[mRow][mCol]:
+                    l = mCol + 1
+                elif target < matrix[mRow][mCol]:
+                    r = mCol - 1
+                else:
+                    return True
+
+    return False
+```
+
+### 🟡 [875. Koko Eating Bananas](https://leetcode.com/problems/koko-eating-bananas)
+
+#### My solution (optimal)
+- O(log(max(p)) * p) --- binary search * iteration over the array on each binary result
+- using binary search to find a min number of bananas/hour `k`
+- binary search range will be from 1 to max values in array
+- but on each binary search result we need to check it, so we need to iterate over the whole array and compute number of hours (`eats`) it will take to eat all piles
+- and another little quirk here is that our intermediate binary search result might be the optimal one even when we go to try further ones
+- in order to account for that we will pre-save a result (if `eats` are smaller than `h`) in a variable
+```python
+def minEatingSpeed(self, piles: List[int], h: int) -> int:
+    L, R = 1, max(piles)
+    res = R # worst result is the maximum one - R
+    while L <= R:
+        k = (L+R)//2
+        eats = sum([math.ceil(p/k) for p in piles])
+        if eats <= h:
+            res = min(res, k) # if Koko can eat in less time than h, it's potentially a final result, so let's pre-save it
+            R = k-1
+        elif eats > h:
+            L = k+1
+    return res
+```
+
+### 🟡 [153. Find Minimum in Rotated Sorted Array](https://leetcode.com/problems/find-minimum-in-rotated-sorted-array)
+
+#### My solution (optimal)
+- O(logn)
+- there are several fundamentals about this problem:
+  - L<R only when the array is not rotated, any rotation makes L>R
+  - usually we would be looking for smaller values on the left, however because of rotation smaller value can be to the right of M
+  - if M>=L in a rotated array (L>R) instead of left we need to go right -- this principle is enough to solve the problem
+- we are doing binary search while saving the min value along the way because after finding the actual min value we can still jump to higher value later
+```python
+def findMin(self, nums: List[int]) -> int:
+    l, r = 0, len(nums)-1
+    minValue = nums[0] # initial min value does not matter as we will find actual min value in the end anyway
+    while l <= r:
+        m = (l+r)//2
+        minValue = min(minValue, nums[m])
+        if nums[l] > nums[r] and nums[m] >= nums[l]:
+            l = m+1
+        else:
+            r = m-1
+    return minValue
+```
+
+#### Another solution (optimal)
+- O(logn)
+- additional fundamentals about this problem:
+  - in a non-rotated array we can simply return first element
+  - again, we can detect non-rotated array if L<R
+  - so we actually don't need to continue as soon as this condition is true, we can just return first elemen (L) of this portion of the array
+- we are doing binary search, while saving min value, until we portion of the array we have is non-rotated
+- it's slightly more efficient but a bit longer code
+```python
+def findMin(self, nums: List[int]) -> int:
+    l, r = 0, len(nums)-1
+    minValue = nums[0]
+    while l <= r:
+        if nums[l] < nums[r]:
+            minValue = min(minValue, nums[l])
+            break
+        m = (l+r)//2
+        minValue = min(minValue, nums[m])
+        if nums[m] >= nums[l]:
+            l = m+1
+        else:
+            r = m-1
+    return minValue
+```
+
+### 🟡 [33. Search in Rotated Sorted Array](https://leetcode.com/problems/search-in-rotated-sorted-array)
+
+#### Optimal solution
+- O(logn)
+- no a specifically beautiful problem (unlike 153), just need many conditions to cover all causes
+- basic idea is that there are 2 portions of an array: left sorted and right sorted
+- top level if-else is to differentiate between those
+- lower level if statements is just to determine which way (l or r) to go
+```python
+def search(self, nums: List[int], target: int) -> int:
+    l, r = 0, len(nums)-1
+    while l <= r:
+        m = (l+r)//2
+        if target == nums[m]:
+            return m
+        if nums[l] <= nums[m]:
+            if target > nums[m] or target < nums[l]:
+                l = m+1
+            else:
+                r = m-1
+        else:
+            if target < nums[m] or target > nums[r]:
+                r = m-1
+            else:
+                l = m+1
+    return -1
+```
+
+### 🟡 [981. Time Based Key-Value Store](https://leetcode.com/problems/time-based-key-value-store)
+
+#### My solution (optimal but code can be better)
+- set: O(1), get: O(logn)
+- using binary search for get
+- basically it's a classic binary search with 1 difference that, if the searched ts is bigger than ts at mid point, then we pre-save it as a potential result
+- initially I implemented it by also comparing new potential result to previous potential result and taking the highest of those but actually it is not needed, as such situation is not going to happen (it's removed from code below)
+```python
+class TimeMap:
+    def __init__(self):
+        self.map = {}      
+
+    def set(self, key: str, value: str, timestamp: int) -> None:
+        if key not in self.map:
+            self.map[key] = []
+        self.map[key].append((timestamp, value))
+        # Or 1-liner but less readable (or use defaultdict in python)
+        # self.map[key] = self.map.get(key, []) + [(timestamp, value)]
 
 
+    def get(self, key: str, timestamp: int) -> str:
+        if key not in self.map:
+            return ""
 
+        tuples = self.map[key]
+        l, r = 0, len(tuples)-1
+        res = ""
+        while l <= r:
+            m = (l+r)//2
+            if tuples[m][0] > timestamp:
+                r = m-1
+            else:
+                res = tuples[m][1]
+                l = m+1
+        return res
+```
 
+### 🟡 [3. Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters)
 
+#### My solution (optimal)
+- O(n)
+- sliding window
+- have a map to keep existing characters and their last index
+- we more R by 1 every time
+- when we encounter a duplicate (which is after L), we jump L to next after that duplicate
+```python
+def lengthOfLongestSubstring(self, s: str) -> int:
+    l, longest = 0, 0
+    map = {}
+    for r in range(len(s)):
+        if s[r] in map and map[s[r]] >= l:
+            l = map[s[r]] + 1
+        map[s[r]] = r
+        longest = max(longest, r - l + 1)
+    return longest
+```
 
+#### Another solution (optimal)
+- the crux here is to realize that we need to keep our window as a substring with no duplicates
+- as soon as R falls on a duplicate we need to move L until the window doesn't contain any more duplicates
+- this variation uses a set instead of a map
+- and because we are not keeping indices of every character we just move L towards R until we remove all duplicates from the set
+```python
+def lengthOfLongestSubstring(self, s: str) -> int:
+    charSet = set()
+    l, longest = 0, 0
+    for r in range(len(s)):
+        while s[r] in charSet:
+            charSet.remove(s[l])
+            l += 1
+        charSet.add(s[r])
+        longest = max(longest, r - l + 1)
+    return longest
+```
 
+### 🟡 [424. Longest Repeating Character Replacement](https://leetcode.com/problems/longest-repeating-character-replacement)
 
+#### Optimal solution 1
+- O(26n)
+- sliding window
+- the main idea for sliding window is to keep the window representing a __valid state__, which in this case is a substring where `k` chars can be replaced to form a repeating sequence
+- so for example for `ABABA`(k=1) `BAB` will be a valid window, as replacing 1 char (A) will make it a sequence of same chars
+- as long as the window keeps representing the valid state we can calculate it's length and update `res` if it's bigger
+- the trick is for each window to take the most used character in this window and replace `k` other chars
+- as we are pre-saving chars in a map (`count`) we need to iterate over this whole map to find the most used char
+- that operation is worst-case 26n complexity, so the whole algorithm becomes O(26n), which is O(n) but still could be more optimal (see next solution)
+```python
+def characterReplacement(self, s: str, k: int) -> int:
+    count = {}
+    res = 0
+    l = 0
+    for r in range(len(s)):
+        count[s[r]] = 1 + count.get(s[r], 0)
+        while (r - l + 1) - max(count.values()) > k:
+            count[s[l]] -= 1
+            l += 1
+        res = max(res, r - l + 1)
+    return res
+```
 
+#### Optimal solution 2
+- O(n)
+- this solution uses an additional trick to previous solution to make it O(n)
+- basically in order to not iterate over the whole map to get the most frequent char, we simply pre-save the most frequent char count into a variable `maxFreq`
+- at first it seems that it would be a problem to decrement `maxFreq` but actually we don't need to ever decrement it, as we will always be looking for a sequence that is longer than the ones we found before
+```python
+def characterReplacement(self, s: str, k: int) -> int:
+    count = {}
+    res = 0
+    l = 0
+    maxFreq = 0
+    for r in range(len(s)):
+        count[s[r]] = 1 + count.get(s[r], 0)
+        maxFreq = max(maxFreq, count[s[r]])
+        while (r - l + 1) - maxFreq > k:
+            count[s[l]] -= 1
+            l += 1
+        res = max(res, r - l + 1)
+    return res
+```
 
+### 🟡 [567. Permutation in String](https://leetcode.com/problems/permutation-in-string)
 
+#### My solution (optimal)
+- O(n)
+- space usage: only 1 map, size of s1
+- not hardcoding `26`
+- using a map with chars from s1
+- using sliding window, it represents potentially valid permutation:
+  - r iterates over each char in s2, checks if it's present in map
+  - l moves towards r when char at r is not in the map, or already has a count of 0 there
+- we also keep sum of all counts in map, if it becomes 0, it means all chars have been seen in s2, so we have a match
+```python
+def checkInclusion(self, s1: str, s2: str) -> bool:
+    map = {}
+    for c in s1:
+        map[c] = map.get(c, 0) + 1
+    s1Sum = len(s1)
 
+    l = 0
+    for r in range(len(s2)):
+        # if char at r is not in map or already has a count of 0
+        if map.get(s2[r], -1) <= 0:
+            # move l towards r, adding chars from s1 back to map
+            while map.get(s2[r], -1) < 1 and l <= r:
+                if s2[l] in map:
+                    map[s2[l]] += 1
+                    s1Sum += 1
+                l += 1
+        # if char at r has a count of 1
+        else:
+            # check if it's the only 1 left, then we have a match
+            if s1Sum == 1:
+                return True
+        if s2[r] in map:
+            map[s2[r]] -= 1
+            s1Sum -= 1
 
+    return False
+```
 
+#### Another solution (also optimal)
+- O(n)
+- space usage is higher
+- hardcoded 26
+- quite clever solution but code wise is less pretty imho
+- create a map (or array in this case, doesn't matter) for all chars in s1 and map for all chars in s2
+- use sliding window, it represents a s1-size-substring of s2:
+  - l and r are always at s1-size
+  - move both l and r simultaneously
+- when we move l and r, we remove l char from our window and add r char to it
+- we change counts of those chars in our maps, and also change `matches` accordingly
+- as soon as matches equals 26, we have our match
+- when matches equal 26 it means that all chars from s1 are present in that window and also all other chars are NOT present there
+- quite a clever approach to harder to figure out than previous solution imho
+```python
+def checkInclusion(self, s1: str, s2: str) -> bool:
+    if len(s1) > len(s2): return False
 
+    # can use hashmaps instead also
+    s1Count, s2Count = [0]*26, [0]*26
+    for i in range(len(s1)):
+        s1Count[ord(s1[i]) - ord('a')] += 1
+        s2Count[ord(s2[i]) - ord('a')] += 1
 
+    matches = 0
+    for i in range(26):
+        matches += (1 if s1Count[i] == s2Count[i] else 0)
 
+    l = 0
+    for r in range(len(s1), len(s2)):
+        if matches == 26:
+            return True
+        index = ord(s2[r]) - ord('a')
+        s2Count[index] += 1
+        if s1Count[index] == s2Count[index]:
+            matches += 1
+        elif s1Count[index] + 1 == s2Count[index]:
+            matches -= 1
 
+        index = ord(s2[l]) - ord('a')
+        s2Count[index] -= 1
+        if s1Count[index] == s2Count[index]:
+            matches += 1
+        elif s1Count[index] - 1 == s2Count[index]:
+            matches -= 1
+
+        l += 1
+
+    return matches == 26
+```
+
+### 🟡 [143. Reorder List](https://leetcode.com/problems/reorder-list)
+
+#### My solution
+- O(n) time, O(n) space
+- using stack
+- basically imitating recursion but with a regular stack
+- populate the stack and then iterate over half of it, merging latest nodes from the stack with nodes from the head
+```python
+def reorderList(self, head: Optional[ListNode]) -> None:
+    stack = [head]
+    h = head
+    while h.next and h.next.next:
+        h = h.next
+        stack.append(h)
+
+    h = head
+    for _ in range(len(stack)//2):
+        hh = h.next
+        t = stack.pop()
+        tt = t.next
+        t.next = None
+        h.next = tt
+        tt.next = hh
+        h = hh
+        if not h:
+            return
+```
+
+#### Optimal solution
+- O(n) time, O(1) space
+- doing it in 3 steps:
+  - find middle node to cut the list into 2 lists
+  - reverse second list
+  - merge lists
+```python
+def reorderList(self, head: Optional[ListNode]) -> None:
+    # Find middle
+    s, f = head, head.next
+    while f and f.next:
+        s, f = s.next, f.next.next
+    mid = s.next
+    # Cut the tail
+    s.next = None
+    # Reverse 2nd list
+    p1, p2 = None, mid
+    while p2:
+        temp = p1
+        p1 = p2
+        p2 = p2.next
+        p1.next = temp
+    h2 = p1
+    # Merge (zip) 2 lists
+    h1 = head
+    while h2:
+        h1n, h2n = h1.next, h2.next # save next pointers
+        h1.next, h2.next = h2, h1n # insert h2 pointer in between
+        h1, h2 = h1n, h2n # move pointers for both lists
+```
+
+### 🟡 [19. Remove Nth Node From End of List](https://leetcode.com/problems/remove-nth-node-from-end-of-list)
+
+#### My solution (optimal)
+- O(n), 1 pass
+- we need to add a dummy node before the head
+- start from it, move p2 n times
+- then keep moving both p1 and p2 until the end of the list
+- at this point p1 will be the node before the node we need to remove
+- alternative solution would be to reverse the list first and then move n times and delete the node, but that would not be 1 pass solution
+```python
+def removeNthFromEnd(self, head: Optional[ListNode], n: int) -> Optional[ListNode]:
+    # Create a node that goes before head
+    n0 = ListNode(0, head)
+    p1, p2 = n0, n0
+    # Move p2 n times
+    for i in range(n):
+        p2 = p2.next
+    # Keep moving p1 and p2 until p2 reaches last node
+    # At this point p1 will be the node before the one we need to remove
+    while p2.next:
+        p1 = p1.next
+        p2 = p2.next
+    # Remove the node
+    p1.next = p1.next.next
+    # Return new head
+    return n0.next
+```
+
+### 🟡 [138. Copy List with Random Pointer](https://leetcode.com/problems/copy-list-with-random-pointer)
+
+#### My solution
+- O(n) time, O(n) space
+- using hashmap to store {oldNode:newNode} pairs
+- iterate first time to create a map
+- iterate second time to create new nodes, while checking agains the map if they already exist of not
+```python
+def copyRandomList(self, head: 'Optional[Node]') -> 'Optional[Node]':
+    if not head: return None
+    # Fill the map
+    map = {}
+    h = head
+    while h:
+        map[h] = None
+        h = h.next
+    # Create new nodes
+    h = head
+    while h:
+        newNode = map[h]
+        if not newNode:  
+            newNode = Node(h.val)
+            map[head] = newNode
+
+        if h.next:
+            if map[h.next]:
+                newNode.next = map[h.next]
+            else:    
+                newNode.next = Node(h.next.val)
+                map[h.next] = newNode.next
+
+        if h.random:
+            if map[h.random]:
+                newNode.random = map[h.random]    
+            else:
+                newNode.random = Node(h.random.val)
+                map[h.random] = newNode.random
+
+        h = h.next
+
+    return map[head]
+```
+
+#### Similar solution
+- O(n) time, O(n) space
+- same idea but create nodes on first iteration
+- and then connect nodes on second iteration
+- shorter code
+```python
+def copyRandomList(self, head: 'Optional[Node]') -> 'Optional[Node]':
+    map = { None: None}
+    # Create nodes and fill map
+    old = head
+    while old:
+        new = Node(old.val)
+        map[old] = new
+        old = old.next
+    # Create connections
+    old = head
+    while old:
+        new = map[old]
+        new.next = map[old.next]
+        new.random = map[old.random]
+        old = old.next
+    return map[head]
+```
+
+#### Optimal solution
+- O(n) time, O(1) space
+- this solution weaves old and new lists together, creating one list like: A->A'->B->B'->C->C'
+- then creates all connections and then unweaves the lists to return only the new one
+- solution is described on Leetcode, but I have not implemented it here
+
+### 🟡 [2. Add Two Numbers](https://leetcode.com/problems/add-two-numbers)
+
+#### My solution (optimal)
+- just perform basic math addition, nothing interesting
+- the only edge case to remember is to create the last node when there is still a carry but no list nodes remaining
+```python
+def addTwoNumbers(self, l1: Optional[ListNode], l2: Optional[ListNode]) -> Optional[ListNode]:
+    carry = False
+    res = ListNode() # dummy
+    sum = res
+    while l1 or l2 or carry:
+        s = (l1.val if l1 else 0) + (l2.val if l2 else 0) + (1 if carry else 0)
+        carry = s >= 10
+        if s >= 10: s %= 10
+        sum.next = ListNode(s)
+        sum = sum.next
+        if l1: l1 = l1.next
+        if l2: l2 = l2.next
+    return res.next
+```
 
 
 
