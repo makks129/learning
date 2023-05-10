@@ -5,6 +5,7 @@ kubectl
 	
 	run [name]
 		--image [imageName]								image is downloaded from dockerhub repo
+		--overrides '{}' 								fields to override in created object (in json inside {})
 		--dry-run=client -o yaml						displays command in YAML to stdout (could be writte to a file)
 
 	expose
@@ -15,9 +16,13 @@ kubectl
 		all												list all k8s objects
 		pods											list Pods (name, status, etc)
 			-o [wide]									more info
+			-o=jsonpath="{.items[*]['metadata.name', 'metadata.namespace']}" 	list pod info with json path expression
+			-o=custom-columns="POD_NAME:.metadata.name, POD_STATUS:.status.containerStatuses[].state"
+			--sort-by=.metadata.name 					list Pods sorted by name 				
 			-n/--namespace [namespace]					list Pods in a namespace
 			-A/--all-namespaces							list Pods in all namespaces
 			-l/--selector [k=v,k=v,..]					list Pods matching labels (selector)
+			-w 											watch
 		replicaset/rs 									list ReplicaSets
 		deployments/deploy								list Deployments
 		pod
