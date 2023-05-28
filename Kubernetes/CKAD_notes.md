@@ -632,6 +632,7 @@ spec:
 							image: reporting-tool
 					restartPolicy: Never
 ```
+K8s will create a job and a pod for each cron job run
 
 
 ## Networking
@@ -861,6 +862,8 @@ Some network solutions implemented on k8s clusters support NetworkPolicy, some d
 - Do not support:
 	- Flannel
 
+Some netpol examples:
+https://github.com/ahmetb/kubernetes-network-policy-recipes/blob/master/01-deny-all-traffic-to-an-application.md
 
 
 ## State Persistence

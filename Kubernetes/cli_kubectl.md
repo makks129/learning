@@ -8,6 +8,10 @@ kubectl
 		--overrides '{}' 								fields to override in created object (in json inside {})
 		--dry-run=client -o yaml						displays command in YAML to stdout (could be writte to a file)
 
+	exec 												run command in pod's container
+		-it												attach terminal process to a container (if command is a shell)
+		-c [containerName]			 					in a specific container in a pod
+
 	expose
 		pod [podName]
 			--port=[port]								creates a service to expose a port of a Pod
@@ -22,6 +26,8 @@ kubectl
 			-n/--namespace [namespace]					list Pods in a namespace
 			-A/--all-namespaces							list Pods in all namespaces
 			-l/--selector [k=v,k=v,..]					list Pods matching labels (selector)
+			--show-labels								with labels column
+			-L [key]									with a label as column
 			-w 											watch
 		replicaset/rs 									list ReplicaSets
 		deployments/deploy								list Deployments
@@ -86,12 +92,16 @@ kubectl
 
 	rollout
 		status
-			deployment/[deploymentName]					see rollout of a Deployment
+			deploy [deploymentName]						see rollout of a Deployment
 		history
-			deployment/[deploymentName]					see history of Deployment revisions
+			deploy [deploymentName]						see history of Deployment revisions
 				--revision								of a specific revision
+		pause
+			deploy [deploymentName]						pause deployment
+		resume
+			deploy [deploymentName]						resume deployment
 		undo
-			deployment/[deploymentName]					perform rolling rollback
+			deploy [deploymentName]						perform rolling rollback
 				--to-revision							to a specific revision
 
 	auth
@@ -106,3 +116,5 @@ kubectl
 		-f [old-definition.yml] --output-version [v]	(plugin) convert a definition to a new version (e.g. -f nginx.yml --output-version apps/v1)
 
 	proxy [port]&										runs kube-apiserver proxy on localhost; curl it like so: curl localhost:port/apis/v1 (& runs proxy process in the background)
+
+	cp 													copy files from pod to local (see help)

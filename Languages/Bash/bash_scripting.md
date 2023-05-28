@@ -1,6 +1,8 @@
 
 grep			print lines that match pattern https://www.gnu.org/savannah-checkouts/gnu/grep/manual/grep.html
-
+	-i 			ignore case
+	-A#			include # lines after (e.g. -A5)
+	-B#			include # lines before (e.g. -B5)
 
 wc				word count
 	-l			coun lines
@@ -19,6 +21,7 @@ less
 awk
 	Examples:
 	awk "{print $1}"			prints first column of the output
+		-F ":"					separates columns by ":"
 
 
 xargs

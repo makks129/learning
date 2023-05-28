@@ -16,6 +16,7 @@ __Playgrounds__
 
 __Resources with questions to practice__
 - https://medium.com/bb-tutorials-and-thoughts/practice-enough-with-these-questions-for-the-ckad-exam-2f42d1228552
+- https://github.com/dgkanatsios/CKAD-exercises
 - https://killer.sh/course/preview/052229bd-1062-44a4-8aae-f50d0770165a
 
 __Try real exams__
@@ -51,6 +52,7 @@ Nodes making up each cluster can be reached via ssh: `ssh <nodename>`
 
 Check `~/.vimrc`:
 ```
+set nu
 set expandtab
 set tabstop=2
 set shiftwidth=2
@@ -59,3 +61,5 @@ set shiftwidth=2
 ### On each question
 
 `k config set-context --current --namespace=[namespace]` - to change context
+
+`export ns="-n some-long-ns-name"`
