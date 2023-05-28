@@ -12,31 +12,31 @@ docker exec -it app /bin/sh
 Set up rolling update with max 2 additional pods and 0 unavailable pods.
 ```yml
 spec:
-	strategy:
-		rollingUpdate:
-			maxSurge: 50%
-			maxUnavailable: 0%
+  strategy:
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 0%
 ```
 
 Perform a Blue/Green deployment
 ```yml
 # deployment: app-v1
 metadata:
-	labels:
-		version: v1
+  labels:
+    version: v1
 
 # deployment: app-v2
 metadata:
-	labels:
-		version: v2
+  labels:
+    version: v2
 
 # create service
 k expose deploy app-v1 --name app-svc --port 80 --target-port 80
 
 # to switch edit svc
 spec:
-	selector:
-		version: v2
+  selector:
+    version: v2
 
 # to check the switch
 k get po -owide # see IPs
@@ -47,13 +47,13 @@ Perform a canary deployment
 ```yml
 # deployment: app-v1, replicas 10
 metadata:
-	labels:
-		app: myapp # same label
+  labels:
+    app: myapp # same label
 
 # deployment: app-v2, replicas 2
 metadata:
-	labels:
-		app: myapp # same label
+  labels:
+    app: myapp # same label
 
 # create service
 k expose deploy app-v1 --name app-svc --port 80 --target-port 80 --selector app=myapp
@@ -66,10 +66,10 @@ Update deployment image from `nginx:1.16` to `nginx:1.17` and then rollback
 ```yml
 # deployment: app
 spec:
-	template:
-		spec:
-			containers:
-			- image: nginx:1.16
+  template:
+    spec:
+      containers:
+      - image: nginx:1.16
 
 # upgrade
 k set image deploy app nginx=nginx:1.17
@@ -85,52 +85,52 @@ Add readiness probe with command `echo ready` with delay 20sec checking periodic
 ```yml
 # pod
 spec:
-	containers:
-	- name: app
-		readinessProbe:
-			exec:
-				command: ["echo", " ready"]
-			initialDelaySeconds: 20
-			periodSeconds: 5
+  containers:
+  - name: app
+    readinessProbe:
+      exec:
+        command: ["echo", " ready"]
+      initialDelaySeconds: 20
+      periodSeconds: 5
 ```
 
 Add liveness probe with http call to path `/alive` at port 80 with delay 20sec checking periodically every 5sec
 ```yml
 # pod
 spec:
-	containers:
-	- name: app
-		livenessProbe:
-			httpGet:
-				path: /alive
-				port: 80
+  containers:
+  - name: app
+    livenessProbe:
+      httpGet:
+        path: /alive
+        port: 80
 ```
 
 Set resource requests (cpu 0.5, memory 128Mi) and limits (cpu 2, memory 256Mi)
 ```yml
 # pod
 spec:
-	containers:
-	- name: app
-		resources:
-			requests:
-				cpu: 0.5
-				memory: 256Mi
-			limits:
-				cpu: 2
-				memory: 256Mi
+  containers:
+  - name: app
+    resources:
+      requests:
+        cpu: 0.5
+        memory: 256Mi
+      limits:
+        cpu: 2
+        memory: 256Mi
 ```
 
 Run a container as user 1000 and add CAP_KILL capability
 ```yml
 # pod
 spec:
-	containers:
-	- name: app
-	  securityContext:
-			runAsUser: 1000
-			capabilities:
-				add: ["CAP_KILL"]
+  containers:
+  - name: app
+    securityContext:
+      runAsUser: 1000
+      capabilities:
+        add: ["CAP_KILL"]
 ```
 
 Create a config map with COLOR=BLUE and use the value as an env variable
@@ -140,19 +140,19 @@ k create cm app-cm --from-literal COLOR=BLUE
 k create secret generic app-sec --from-literal SHAPE=SQUARE
 # pod
 spec:
-	containers:
-	- name: app
-		env:
-			- name: COLOR
-				valueFrom:
-					configMapKeyRef:
-						name: app-cm
-						key: COLOR
-			- name: SHAPE
-				valueFrom:
-					secretKeyRef:
-						name: app-sec
-						key: SHAPE
+  containers:
+  - name: app
+    env:
+      - name: COLOR
+        valueFrom:
+          configMapKeyRef:
+            name: app-cm
+            key: COLOR
+      - name: SHAPE
+        valueFrom:
+          secretKeyRef:
+            name: app-sec
+            key: SHAPE
 ```
 
 Create a config map with COLOR=BLUE and use it as env source
@@ -162,13 +162,13 @@ k create cm app-cm --from-literal COLOR=BLUE
 k create secret generic app-sec --from-literal SHAPE=SQUARE
 # pod
 spec:
-	containers:
-	- name: app
-	  envFrom:
-		- configMapRef:
-				name: app-cm
-		- secretRef:
-				name: app-sec
+  containers:
+  - name: app
+    envFrom:
+    - configMapRef:
+        name: app-cm
+    - secretRef:
+        name: app-sec
 ```
 
 Create a dir an mount it as a volume at path `/dir`
@@ -179,24 +179,24 @@ k create cm app-cm --from-literal COLOR=BLUE
 k create secret generic app-sec --from-literal SHAPE=SQUARE
 # pod
 spec:
-	containers:
-	- name: app
-		volumeMounts:
-		- name: vol-dir
-			mountPath: /dir
-		- name: vol-cm
-			mountPath: /path
-		- name: vol-sec
-			mountPath: /path
-	volumes:
-	- name: vor-dir
-		emptyDir: {}
-	- name: vol-cm
-		configMap:
-			name: app-cm
-	- name: vol-sec
-		secret:
-			secretName: app-sec
+  containers:
+  - name: app
+    volumeMounts:
+    - name: vol-dir
+      mountPath: /dir
+    - name: vol-cm
+      mountPath: /path
+    - name: vol-sec
+      mountPath: /path
+  volumes:
+  - name: vor-dir
+    emptyDir: {}
+  - name: vol-cm
+    configMap:
+      name: app-cm
+  - name: vol-sec
+    secret:
+      secretName: app-sec
 ```
 
 Create a PV: storage class manual, RWX, capacity 10Gi, storing data on host path `/data`
@@ -207,44 +207,44 @@ Mount PVC as a volume at path `/storage`
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-	name: pv1
+  name: pv1
 spec:
-	storageClassName: manual
-	accessModes:
-	- ReadWriteMany
-	capacity:
-		storage: 10Gi
+  storageClassName: manual
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 10Gi
 
 # PVC
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-	name: pvc1
+  name: pvc1
 spec:
-	storageClassName: manual
-	accessModes:
-	- ReadWriteMany
-	resources:
-		requests:
-			storage: 5Gi
-	selector:
-		matchLabels:
-			app: app
+  storageClassName: manual
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  selector:
+    matchLabels:
+      app: app
 
 # pod
 metadata:
-	labels:
-		app: app
+  labels:
+    app: app
 spec:
-	containers:
-	- name: app
-		volumeMounts:
-		- name: app-pvc
-			mountPath: /storage
-	volumes:
-	- name: app-pvc
-		persistentVolumeClaim:
-			claimName: pvc1
+  containers:
+  - name: app
+    volumeMounts:
+    - name: app-pvc
+      mountPath: /storage
+  volumes:
+  - name: app-pvc
+    persistentVolumeClaim:
+      claimName: pvc1
 ```
 
 Create service account admin
@@ -253,49 +253,49 @@ Add admin service account to pod
 k create sa admin
 # pod
 spec:
-	serviceAccountName: admin
+  serviceAccountName: admin
 ```
 
 Run pod on a node nodeX
 ```yml
 # pod
 spec:
-	nodeName: nodeX
+  nodeName: nodeX
 ```
 
 Run pod on a node with label color=red
 ```yml
 # pod
 spec:
-	nodeSelector:
-		color: red
+  nodeSelector:
+    color: red
 ```
 
 Taint a node with color=red, no schedule
 Add a toleration for that color to a pod
 ```yml
 spec:
-	tolerations:
-	- key: color
-		operator: Equals
-		value: red
-		effect: NoSchedule
+  tolerations:
+  - key: color
+    operator: Equals
+    value: red
+    effect: NoSchedule
 ```
 
 Add affinity to a pod to be run on nodes that have zone=a or zone=b (required)
 ```yml
 # pod
 spec:
-	affinity:
-	  nodeAffinity:
-	    requiredDuringSchedulingIgnoredDuringExecution:
-	      nodeSelectorTerms:
-	      - matchExpressions: # matched labels
-	        - key: zome
-	          operator: In
-	          values:
-	          - a
-	          - b
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions: # matched labels
+          - key: zome
+            operator: In
+            values:
+            - a
+            - b
 ```
 
 Create a job that runs command `date` 10 times by 2 in parallel
@@ -303,13 +303,13 @@ Create a job that runs command `date` 10 times by 2 in parallel
 k create job myjob --image busybox -oyaml --dry-run=client -- date > myjob.yml
 # job
 spec:
-	completions: 10
-	parallelism: 2
-	template:
-		spec:
-			containers:
-			- name: myjob
-				command: ["date"]
+  completions: 10
+  parallelism: 2
+  template:
+    spec:
+      containers:
+      - name: myjob
+        command: ["date"]
 ```
 
 Create a cronjob that runs a command `date` every hour
@@ -323,11 +323,11 @@ k create deploy app --image nginx --replicas 3
 k expose deploy app --type NodePort --port 80 --target-port 80
 # svc
 spec:
-	ports:
-	- nodePort: 30200 # edit this
-		port: 80
-		targetPort: 80
-		protocol: TCP
+  ports:
+  - nodePort: 30200 # edit this
+    port: 80
+    targetPort: 80
+    protocol: TCP
 
 k get node -owide # take internal-ip of a node
 curl <node-internal-ip>:30200
@@ -356,16 +356,16 @@ k run app2 --image nginx
 # edit netpol
 spec:
   podSelector:
-  	matchLabels:
-  		run: app1
+    matchLabels:
+      run: app1
   ingress:
   - from:
-  	- podSelector: # can also be namespaceSelector
-  			matchExpressions: # using matchExpressions just as an example of how to use it
-  			- key: run
-  				operator: In
-  				values:
-  				- app2
+    - podSelector: # can also be namespaceSelector
+        matchExpressions: # using matchExpressions just as an example of how to use it
+        - key: run
+          operator: In
+          values:
+          - app2
   policyTypes:
   - Ingress
 ```
@@ -381,7 +381,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: test.app.com	
+  - host: test.app.com  
     http:
       paths:
       - path: /blue
