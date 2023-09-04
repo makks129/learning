@@ -1,3 +1,7 @@
+## About Linux
+
+[Linux](https://github.com/akim-13/epq)
+
 ## FS
 
 Everything in Linux is a file (commands, configs, devices, etc.)

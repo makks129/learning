@@ -78,6 +78,7 @@ For a query with range (`>/</BETWEEN`) `AND` equality (`=`), index for equality 
 
 ### LIKE
 
+Continue here... https://use-the-index-luke.com/sql/where-clause/searching-for-ranges/like-performance-tuning
 
 
 ---

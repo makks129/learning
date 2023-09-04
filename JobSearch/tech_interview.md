@@ -164,6 +164,7 @@ __Exercises__
 ### 🟢 [1. Two Sum](https://leetcode.com/problems/two-sum)
 
 #### My solution 1
+#run1
 - O(n²)
 - make 2 pointers and move them together forward (with 2D loop) until they meet the target
 ```python
@@ -180,6 +181,7 @@ def twoSum(self, nums: List[int], target: int) -> List[int]:
     return []
 ```
 #### Optimal solution
+#run2
 - O(n)
 - use hashmap to store previous values {val:i}
 - iterate once, looking for a num that is a difference between current num and target
@@ -198,6 +200,7 @@ def twoSum(self, nums: List[int], target: int) -> List[int]:
 ### 🟢 [20. Valid Parentheses](https://leetcode.com/problems/valid-parentheses)
 
 #### My solution 1 (optimal)
+#run1
 - O(n)
 - use stack to iterate over string and add chars to it
 - if top char in stack closes the current bracket, then pop, otherwise append
@@ -216,10 +219,26 @@ def isValid(self, s: str) -> bool:
             stack.append(c)
     return not stack
 ```
+#### My solution 2 (optimal, imo better code)
+#run2
+```python
+def isValid(self, s: str) -> bool:
+    map = {'(':')', '[':']', '{':'}'}
+    stack = []
+    for p in s:
+        if p in map:
+            stack.append(p)
+        else:
+            if not stack or map[stack.pop()] != p:
+                return False
+    return not stack
+```
+
 
 ### 🟢 [21. Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists)
 
-#### My solution 1 (good but long, this is refactored version of it)
+#### My solution 1 (optimal but long, this is refactored version of it)
+#run1 #run2
 - O(n)
 - create initNode as a dummy head, define tail
 - iterate over lists growing the tail
@@ -238,8 +257,7 @@ def mergeTwoLists(self, list1: Optional[ListNode], list2: Optional[ListNode]) ->
             list2 = list2.next
         tail = tail.next
 
-    if list1: tail.next = list1
-    if list2: tail.next = list2
+    tail.next = list1 if list1 else list2
 
     return initNode.next
 ```
@@ -247,6 +265,7 @@ def mergeTwoLists(self, list1: Optional[ListNode], list2: Optional[ListNode]) ->
 ### 🟢 [121. Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock)
 
 #### My solution 1 (optimal)
+#run1
 - O(n)
 - store min and maxProfit
 - iterate and compare, updating min and maxProfit
@@ -272,6 +291,7 @@ def maxProfit(self, prices: List[int]) -> int:
   return maxProfit
 ```
 #### Sliding window solution (optimal)
+#run2
 - 2 pointers: start at 0,1
 - move L only if price at R is smaller
 - move R by 1 each time
@@ -290,6 +310,7 @@ def maxProfit(self, prices: List[int]) -> int:
 ### 🟢 [125. Valid Palindrome](https://leetcode.com/problems/valid-palindrome)
 
 #### My solution 1
+#run1 #run2
 - O(n)
 - use 2 pointers, going from L> and from <R, checking for equality
 ```python
@@ -315,6 +336,7 @@ def isPalindrome(self, s: str) -> bool:
 ### 🟢 [226. Invert Binary Tree](https://leetcode.com/problems/invert-binary-tree)
 
 #### My solution 1 (iterative)
+#run1 
 - O(n)
 - traverse BT using stack
 - invert node on adding to stack
@@ -335,6 +357,7 @@ def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
     return root
 ```
 #### My solution 2 (recursive)
+#run1 #run2
 - O(n)
 - traverse BT recursively, invert each node
 ```python
@@ -347,6 +370,7 @@ def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
 ### 🟢 [242. Valid Anagram](https://leetcode.com/problems/valid-anagram)
 
 #### My solution 1 (optimal)
+#run1 #run2
 - O(n), 2n
 - map chars from string S
 - remove from map on string T
@@ -376,6 +400,7 @@ def isAnagram(self, s: str, t: str) -> bool:
 ### 🟢 [704. Binary Search](https://leetcode.com/problems/binary-search)
 
 #### Optimal solution
+#run2
 - O(log n)
 - 2 pointers, L and R
 - Mid pointer is (L+R)/2
@@ -396,6 +421,7 @@ def search(self, nums: List[int], target: int) -> int:
 ### 🟢 [733. Flood Fill](https://leetcode.com/problems/flood-fill)
 
 #### My solution
+#run1
 - recursive
 ```python
 def floodFill(self, image: List[List[int]], sr: int, sc: int, color: int) -> List[List[int]]:
@@ -416,7 +442,28 @@ def floodFillRec(self, image: List[List[int]], sr: int, sc: int, initColor: int,
 def inBounds(self, image: List[List[int]], i: int, j: int) -> bool:
     return i >= 0 and i < len(image) and j >=0 and j < len(image[i])
 ```
-#### Better recursive solution
+#### My solution (optimal)
+#run2
+```python
+def floodFill(self, image: List[List[int]], sr: int, sc: int, color: int) -> List[List[int]]:
+    startColor = image[sr][sc]
+    if startColor == color: 
+        return image
+    else: 
+        image[sr][sc] = color
+
+    if sr-1 >= 0 and image[sr-1][sc] == startColor:
+        self.floodFill(image, sr-1, sc, color)
+    if sr+1 <= len(image)-1 and image[sr+1][sc] == startColor:
+        self.floodFill(image, sr+1, sc, color)
+    if sc-1 >= 0 and image[sr][sc-1] == startColor:
+        self.floodFill(image, sr, sc-1, color)
+    if sc+1 <= len(image[sr])-1 and image[sr][sc+1] == startColor:
+        self.floodFill(image, sr, sc+1, color)
+
+    return image
+```
+#### Optimal recursive solution
 ```python
 def floodFill(self, image: List[List[int]], sr: int, sc: int, color: int) -> List[List[int]]:
     initColor = image[sr][sc]
@@ -464,7 +511,11 @@ def inBounds(self, image: List[List[int]], row: int, col: int) -> bool:
 Can be solved by creating a path for P and a path for Q and then comparing them until they diverge.
 But easier solution is just to follow 1 path until it diverges - that node will be LCA.
 
+Use the fact that this is a BST! 
+In BST LCA means that 1 child is `<=` and one child is `>=`.
+
 #### My solution
+#run1
 - O(log n)
 - follow a path until P and Q diverge
 - this node will be LCA
@@ -485,6 +536,7 @@ class Solution:
 ### 🟢 [110. Balanced Binary Tree](https://leetcode.com/problems/balanced-binary-tree)
 
 #### My solution
+#run1
 - O(n)
 - recursive
 - propagate level down
@@ -505,6 +557,7 @@ def isBalanced(self, root: Optional[TreeNode]) -> bool:
         return False
 ```
 #### Same solution but without exception
+#run2
 - Alternatively you can propagate tree height up the recursion call stack, and make it -1 when one of the nodes turns out to be unbalanced. Then -1 will propagate to the first call of inner function and will indicate that one of the nodes was unbalanced
 ```python
 def isBalanced(self, root: Optional[TreeNode]) -> bool:
@@ -522,6 +575,7 @@ def isBalanced(self, root: Optional[TreeNode]) -> bool:
 ### 🟢 [141. Linked List Cycle](https://leetcode.com/problems/linked-list-cycle)
 
 #### My solution
+#run1
 - O(n) space also O(n)
 - using hashmap to check which nodes are visited
 ```python
@@ -536,6 +590,7 @@ def hasCycle(self, head: Optional[ListNode]) -> bool:
     return False
 ```
 #### Optimal solution
+#run2
 - O(n) space O(1)
 - not using any additional data structures
 - Floyd's Tortoise and Hare: iterating over the list with 2 pointers: 1 makes 1 step, 2 makes 2 steps
@@ -554,6 +609,7 @@ def hasCycle(self, head: Optional[ListNode]) -> bool:
 ### 🟢 [232. Implement Queue using Stacks](https://leetcode.com/problems/implement-queue-using-stacks)
 
 #### My solution (optimal)
+#run1 #run2
 - push O(1), pop/peek O(n) (because it does it only when s2 is empty complexity of the dequeue operation becomes O(1))
 - it's also possible to implement push O(n) and pop/peek O(1), but that solution is worse as it will move all elements from s1 to s2 and back to s1 on every push
 ```python
@@ -584,7 +640,8 @@ class MyQueue:
 
 ### 🟢 [217. Contains Duplicate](https://leetcode.com/problems/contains-duplicate)
 
-#### My solution
+#### My solution (optimal)
+#run1
 - O(n) space O(n)
 - can be done with space O(1) by either making time O(n²) or in case of sorting time O(nlogn)
 - using hashmap or hashset
@@ -595,6 +652,12 @@ def containsDuplicate(self, nums: List[int]) -> bool:
         if n in s: return True
         s.add(n)
     return False
+```
+#### My solution (optimal)
+#run2
+```python
+def containsDuplicate(self, nums: List[int]) -> bool:
+    return len(set(nums)) != len(nums)
 ```
 
 ### 🟢 [206. Reverse Linked List](https://leetcode.com/problems/reverse-linked-list)
@@ -613,6 +676,7 @@ def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
     return p1
 ```
 #### My solution (recursive)
+#run2
 - go to the end, then return node and head
 - reverse node next pointer
 - keep returning same head
@@ -660,6 +724,7 @@ def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
 ### 🟢 [104. Maximum Depth of Binary Tree](https://leetcode.com/problems/maximum-depth-of-binary-tree)
 
 #### My solution
+#run1 #run2
 - recursive
 ```python
 def maxDepth(self, root: Optional[TreeNode]) -> int:
@@ -704,6 +769,7 @@ def maxDepth(self, root: Optional[TreeNode]) -> int:
 ### 🟢 [543. Diameter of Binary Tree](https://leetcode.com/problems/diameter-of-binary-tree)
 
 #### My solution (optimal)
+#run1 #run2
 - recursive
 - on every node return max length of one of its children and also the longest path ever found
 - very similar to [110. Balanced Binary Tree] where you can propagate `balanced` state up the call stack, here we propagate longest path up the call stack

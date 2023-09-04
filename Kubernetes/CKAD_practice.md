@@ -61,6 +61,9 @@ __Service and networking__
 ### kubectl basics
 
 ```sh
+# Docs
+k explain pod.spec --recursive | grep -z pattern
+
 # See version of k8s
 k get nodes
 

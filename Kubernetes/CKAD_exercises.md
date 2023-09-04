@@ -13,7 +13,7 @@ docker exec -it app /bin/sh
 </p>
 </details>
 
-➡️ Set up rolling update with max 2 additional pods and 0 unavailable pods.
+➡️ Set up rolling update with max 2 additional pods and 0 unavailable pods
 <details><summary>show</summary>
 <p>
 
@@ -34,14 +34,18 @@ spec:
 
 ```yml
 # deployment: app-v1
-metadata:
-  labels:
-    version: v1
+spec:
+	template:
+		metadata:
+		  labels:
+		    version: v1
 
 # deployment: app-v2
-metadata:
-  labels:
-    version: v2
+spec:
+	template:
+		metadata:
+		  labels:
+		    version: v2
 
 # create service
 k expose deploy app-v1 --name app-svc --port 80 --target-port 80
@@ -67,15 +71,23 @@ k get ep # before switch should match IPs of v1, after switch should match IPs o
 # deployment: app-v1, replicas 10
 metadata:
   labels:
-    app: myapp # same label
+  	app: app-v1
+    dep: canary # add same label
 
 # deployment: app-v2, replicas 2
 metadata:
   labels:
-    app: myapp # same label
+  	app: app-v2
+    dep: canary # add same label
 
 # create service
-k expose deploy app-v1 --name app-svc --port 80 --target-port 80 --selector app=myapp
+k expose deploy app-v1 --name app-svc --port 80 --target-port 80
+
+# edit service to select by canary label
+spec:
+	selector:
+		app: app-v1 # remove
+		dep: canary # add
 
 # scale down v1
 k scale deploy app-v1 --replicas 8

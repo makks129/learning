@@ -3,6 +3,7 @@ grep			print lines that match pattern https://www.gnu.org/savannah-checkouts/gnu
 	-i 			ignore case
 	-A#			include # lines after (e.g. -A5)
 	-B#			include # lines before (e.g. -B5)
+	-E "pattern|$"	to print all and highligh searched pattern
 
 wc				word count
 	-l			coun lines
